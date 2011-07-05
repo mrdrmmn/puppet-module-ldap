@@ -1,0 +1,20 @@
+dn: dc=example,dc=com
+objectClass: dcObject
+objectClass: organizationalUnit
+dc: example
+ou: Example Dot Com
+
+dn: cn=admin,dc=example,dc=com
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+description: LDAP administrator
+userPassword: <password>
+
+dn: ou=people,dc=example,dc=com
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=example,dc=com
+objectClass: organizationalUnit
+ou: groups

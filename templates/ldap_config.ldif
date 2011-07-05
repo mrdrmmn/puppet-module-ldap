@@ -1,0 +1,62 @@
+dn: cn=config
+changetype: modify
+<% if defined? config_ArgsFile -%>
+replace: olcArgsFile
+olcArgsFile: <%= config_ArgsFile %>
+-
+<% end -%>
+<% if defined? config_LdapLogLevel -%>
+replace: olcLogLevel
+olcLogLevel: <%= config_LdapLogLevel %>
+-
+<% end -%>
+<% if defined? config_PidFile -%>
+replace: olcPidFile
+olcPidFile: <%= config_PidFile %>
+-
+<% end -%>
+<% if defined? config_ToolThreads -%>
+replace: olcToolThreads
+olcToolThreads: <%= config_ToolThreads %>
+-
+<% end -%>
+<% if defined? config_TLSVerifyClient -%>
+replace: olcTLSVerifyClient
+olcTLSVerifyClient: <%= config_TLSVerifyClient %>
+-
+<% end -%>
+<% if defined? config_TLSCACertificateFile -%>
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: <%= config_TLSCACertificateFile %>
+-
+<% end -%>
+<% if defined? config_TLSCACertificatePath -%>
+replace: olcTLSCACertificatePath
+olcTLSCACertificatePath: <%= config_TLSCACertificatePath %>
+-
+<% end -%>
+<% if defined? config_TLSCertificateFile -%>
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: <%= config_TLSCertificateFile %>
+-
+<% end -%>
+<% if defined? config_TLSCertificateKeyFile -%>
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: <%= config_TLSCertificateKeyFile %>
+-
+<% end -%>
+<% if defined? config_TLSCipherSuite -%>
+replace: olcTLSCipherSuite
+olcTLSCipherSuite: <%= config_TLSCipherSuite %>
+-
+<% end -%>
+<% if defined? config_TLSRandFile -%>
+replace: olcTLSRandFile
+olcTLSRandFile: <%= config_TLSRandFile %>
+-
+<% end -%>
+<% if defined? config_TLSEphemeralDHParamFile -%>
+replace: olcTLSEphemeralDHParamFile
+olcTLSEphemeralDHParamFile: <%= config_TLSEphemeralDHParamFile %>
+-
+<% end -%>
