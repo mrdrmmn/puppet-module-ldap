@@ -14,6 +14,7 @@
 class ldap {
   ldap::server{ 'ldap_server':
     ensure => 'installed',
+    #ensure => 'purged',
     directories => 'dc=example,dc=com'
   }
 }

@@ -69,40 +69,47 @@ define ldap::server::directory (
 
   case $config_ensure {
     'present','installed': {
-      ::directory{ "$directory_path":
+      ::directory{ $directory_path:
         owner   => $config_owner,
         group   => $config_group,
         mode    => '0700',
-        recurse => 'true';
+        recurse => 'true',
+        require => Anchor[ 'phase2' ],
+        before  => Anchor[ 'phase3' ],
       }
       file{ $directory_conf_file:
         ensure  => 'present',
         owner   => $config_owner,
         group   => $config_group,
-        content => template( 'ldap/directory-conf.ldif' );
+        content => template( 'ldap/server/directory-conf.ldif' ),
+        require => Anchor[ 'phase2' ],
+        before  => Anchor[ 'phase3' ],
       }
       file{ $directory_init_file:
         ensure  => 'present',
         owner   => $config_owner,
         group   => $config_group,
-        content => template( 'ldap/directory-init.ldif' );
+        content => template( 'ldap/server/directory-init.ldif' ),
+        require => Anchor[ 'phase2' ],
+        before  => Anchor[ 'phase3' ],
       }
       exec{ $exec_directory_configure:
-        path        => '/usr/bin',
-        unless      => $exec_directory_is_initialized,
-        require     => File[ $directory_conf_file ],
-        refreshonly => 'true'
+        path    => '/usr/bin',
+        unless  => $exec_directory_is_initialized,
+        require => [
+          Anchor[ 'phase3' ],
+        ]
       }
       exec{ $exec_directory_initialize:
         path    => '/usr/bin',
         unless  => $exec_directory_is_initialized,
         require => [
-          File[ $directory_init_file ],
-          Exec[ $exec_directory_configure ]
-        ];
+          Anchor[ 'phase3' ],
+          Exec[ $exec_directory_configure ],
+        ]
       }
-
     }
+    
     'absent','removed': {
     }
     default: {

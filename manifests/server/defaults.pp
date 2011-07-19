@@ -5,10 +5,14 @@ class ldap::server::defaults {
       $os_group        = 'openldap'
       $os_packages     = [
         'slapd',
-        'ldap-utils'
+        'ldap-utils',
+        'ldapscripts',
       ]
       $os_services     = [
         'slapd'
+      ]
+      $os_conf_files   = [
+        'present:absent:root:root:0644:/etc/default/slapd',
       ]
     }
     default: {
@@ -28,18 +32,39 @@ class ldap::server::defaults {
     ''      => '/var/lib/ldap',
     default => $os_directory_base
   }
-  $password                = $os_password
+  $password                = $os_password ? {
+    ''      => $uniqueid,
+    default => $os_password
+  }
   $directories             = $os_directories
   $ArgsFile                = $os_ArgsFile
-  $LdapLogLevel            = $os_LdapLogLevel
+  $LdapLogLevel            = $os_LdapLogLevel ? {
+    ''      => 'none',
+    default => $os_LdapLogLevel
+  }
   $PidFile                 = $os_PidFile
   $ToolThreads             = $os_ToolThreads
   $TLSVerifyClient         = $os_TLSVerifyClient
   $TLSCACertificateFile    = $os_TLSCACertificateFile
   $TLSCACertificatePath    = $os_TLSCACertificatePath
-  $TLSCertificateFile      = $os_TLSCertificateFile
+  $TLSCertificateFile      = $os_TLSCertificateFile ? {
+    ''      => '/etc/ldap-server.pem',
+    default => $os_TLSCertificateFile
+  }
   $TLSCertificateKeyFile   = $os_TLSCertificateKeyFile
   $TLSCipherSuite          = $os_TLSCipherSuite
   $TLSRandFile             = $os_TLSRandFile
   $TLSEphemeralDHParamFile = $os_TLSEphemeralDHParamFile
+  $conf_files              = $os_conf_files ? {
+    ''      => '',
+    default => $os_conf_files
+  }
+
+  $cert_country      = 'US'
+  $cert_state        = 'California'
+  $cert_city         = 'Culver City'
+  $cert_organization = 'N/A'
+  $cert_department   = 'N/A'
+  $cert_domain       = $fqdn
+  $cert_email        = "root@${fqdn}"
 }
