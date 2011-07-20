@@ -1,9 +1,7 @@
-class ldap::server::defaults {
+class ldap::server::defaults inherits ldap::defaults {
   case $operatingsystem {
     'ubuntu': {
-      $os_owner        = 'openldap'
-      $os_group        = 'openldap'
-      $os_packages     = [
+      $default_packages     = [
         'slapd',
         'ldap-utils',
         'ldapscripts',
@@ -13,13 +11,19 @@ class ldap::server::defaults {
       ]
       $os_conf_files   = [
         'present:absent:root:root:0644:/etc/default/slapd',
+        'present:absent:root:root:0644:/etc/ldap/ldap.conf',
       ]
+      $os_ldap_conf_dir = "/etc/ldap/slapd.d"
     }
     default: {
       fail( "$operatingsystem is not currently supported" )
     }
   }
 
+  $prune                   = $os_prune ? {
+    ''      => 'false',
+    default => $os_prune
+  }
   $owner                   = $os_owner
   $group                   = $os_group
   $packages                = $os_packages
@@ -44,14 +48,20 @@ class ldap::server::defaults {
   }
   $PidFile                 = $os_PidFile
   $ToolThreads             = $os_ToolThreads
-  $TLSVerifyClient         = $os_TLSVerifyClient
+  $TLSVerifyClient         = $os_TLSVerifyClient ? {
+    ''      => 'never',
+    default => $os_TLSVerifyClient
+  }
   $TLSCACertificateFile    = $os_TLSCACertificateFile
   $TLSCACertificatePath    = $os_TLSCACertificatePath
   $TLSCertificateFile      = $os_TLSCertificateFile ? {
-    ''      => '/etc/ldap-server.pem',
+    ''      => '/etc/ldap-server.crt',
     default => $os_TLSCertificateFile
   }
-  $TLSCertificateKeyFile   = $os_TLSCertificateKeyFile
+  $TLSCertificateKeyFile   = $os_TLSCertificateKeyFile ? {
+    ''      => '/etc/ldap-server.key',
+    default => $os_TLSCertificateKeyFile
+  }
   $TLSCipherSuite          = $os_TLSCipherSuite
   $TLSRandFile             = $os_TLSRandFile
   $TLSEphemeralDHParamFile = $os_TLSEphemeralDHParamFile
@@ -59,6 +69,7 @@ class ldap::server::defaults {
     ''      => '',
     default => $os_conf_files
   }
+  $ldap_conf_dir           = $os_ldap_conf_dir
 
   $cert_country      = 'US'
   $cert_state        = 'California'

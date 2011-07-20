@@ -14,4 +14,22 @@ class ldap::anchor {
       require => Anchor[ 'phase2' ]
     }
   }
+
+  if( ! defined( Anchor[ 'phase4' ] ) ) {
+    anchor{ 'phase4':
+      require => Anchor[ 'phase3' ]
+    }
+  }
+
+  if( ! defined( Anchor[ 'phase5' ] ) ) {
+    anchor{ 'phase5':
+      require => Anchor[ 'phase4' ]
+    }
+  }
+
+  if( ! defined( Anchor[ 'phase6' ] ) ) {
+    anchor{ 'phase6':
+      require => Anchor[ 'phase5' ]
+    }
+  }
 }

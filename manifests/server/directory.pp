@@ -63,7 +63,7 @@ define ldap::server::directory (
   $directory_conf_file           = "${config_ldif_dir}/${config_basedn}-conf.ldif"
   $directory_init_file           = "${config_ldif_dir}/${config_basedn}-init.ldif"
   $exec_directory_configure      = "ldapadd -Y EXTERNAL -H ldapi:/// -f '${directory_conf_file}'"
-  $exec_directory_is_configured  = "ldapsearch -Y EXTERNAL -H ldapi:/// -b 'cn=config' 'olcSuffix=${config_basedn}'"
+  $exec_directory_is_configured  = "test -n \"`ldapsearch -Y EXTERNAL -H ldapi:/// -LLL -Q -b cn=config -s sub '(&(objectClass=olcDatabaseConfig)(olcSuffix=${config_basedn}))' dn`\""
   $exec_directory_initialize     = "ldapadd -Y EXTERNAL -H ldapi:/// -f '${directory_init_file}'"
   $exec_directory_is_initialized = "ldapsearch -Y EXTERNAL -H ldapi:/// -b '${config_basedn}' -s base"
 
@@ -74,39 +74,36 @@ define ldap::server::directory (
         group   => $config_group,
         mode    => '0700',
         recurse => 'true',
-        require => Anchor[ 'phase2' ],
-        before  => Anchor[ 'phase3' ],
+        require => Anchor[ 'phase3' ],
+        before  => Anchor[ 'phase4' ],
       }
       file{ $directory_conf_file:
         ensure  => 'present',
         owner   => $config_owner,
         group   => $config_group,
         content => template( 'ldap/server/directory-conf.ldif' ),
-        require => Anchor[ 'phase2' ],
-        before  => Anchor[ 'phase3' ],
+        require => Anchor[ 'phase3' ],
+        before  => Anchor[ 'phase4' ],
       }
       file{ $directory_init_file:
         ensure  => 'present',
         owner   => $config_owner,
         group   => $config_group,
         content => template( 'ldap/server/directory-init.ldif' ),
-        require => Anchor[ 'phase2' ],
-        before  => Anchor[ 'phase3' ],
+        require => Anchor[ 'phase3' ],
+        before  => Anchor[ 'phase4' ],
       }
       exec{ $exec_directory_configure:
         path    => '/usr/bin',
-        unless  => $exec_directory_is_initialized,
-        require => [
-          Anchor[ 'phase3' ],
-        ]
+        unless  => $exec_directory_is_configured,
+        require => Anchor[ 'phase4' ],
+        before  => Anchor[ 'phase5' ],
       }
       exec{ $exec_directory_initialize:
         path    => '/usr/bin',
         unless  => $exec_directory_is_initialized,
-        require => [
-          Anchor[ 'phase3' ],
-          Exec[ $exec_directory_configure ],
-        ]
+        require => Anchor[ 'phase5' ],
+        before  => Anchor[ 'phase6' ],
       }
     }
     
