@@ -12,26 +12,35 @@
 #
 # [Remember: No empty lines between comments and class definition]
 define ldap::server (
-  $ensure                  = $ldap::server::config::ensure
-  $user                    = $ldap::server::config::user
-  $group                   = $ldap::server::config::group
-  $ldif_dir                = $ldap::server::config::ldif_dir
-  $directory_base          = $ldap::server::config::directory_base
-  $directories             = $ldap::server::config::directories
-  $password                = $ldap::server::config::password
-  $ArgsFile                = $ldap::server::config::args_file
-  $LdapLogLevel            = $ldap::server::config::log_level
-  $PidFile                 = $ldap::server::config::pid_file
-  $ToolThreads             = $ldap::server::config::tool_threads
-  $TLSVerifyClient         = $ldap::server::config::ssl_verify_certs
-  $TLSCACertificateFile    = $ldap::server::config::ssl_cacert_file
-  $TLSCACertificatePath    = $ldap::server::config::ssl_cacert_path
-  $TLSCertificateFile      = $ldap::server::config::ssl_cert
-  $TLSCertificateKeyFile   = $ldap::server::config::ssl_key
-  $TLSCipherSuite          = $ldap::server::config::ssl_cipher_suite
-  $TLSRandFile             = $ldap::server::config::ssl_rand_file
-  $TLSEphemeralDHParamFile = $ldap::server::config::ssl_ephemeral_file
-  $ldap_conf_dir           = $ldap::server::config::ldap_conf_dir
+  $ensure                = $ldap::server::config::ensure,
+  $user                  = $ldap::server::config::user,
+  $group                 = $ldap::server::config::group,
+  $base_dn               = $ldap::server::config::base_dn,
+  $root_dn               = $ldap::server::config::root_dn,
+  $password              = $ldap::server::config::password,
+  $ldif_dir              = $ldap::server::config::ldif_dir,
+  $directory_base        = $ldap::server::config::directory_base,
+  $directories           = $ldap::server::config::directories,
+  $args_file             = $ldap::server::config::args_file,
+  $log_level             = $ldap::server::config::log_level,
+  $pid_file              = $ldap::server::config::pid_file,
+  $tool_threads          = $ldap::server::config::tool_threads,
+  $ssl_verify_certs      = $ldap::server::config::ssl_verify_certs,
+  $ssl_cacert_file       = $ldap::server::config::ssl_cacert_file,
+  $ssl_cacert_path       = $ldap::server::config::ssl_cacert_path,
+  $ssl_cert_file         = $ldap::server::config::ssl_cert_file,
+  $ssl_key_file          = $ldap::server::config::ssl_key_file,
+  $ssl_cipher_suite      = $ldap::server::config::ssl_cipher_suite,
+  $ssl_rand_file         = $ldap::server::config::ssl_rand_file,
+  $ssl_ephemeral_file    = $ldap::server::config::ssl_ephemeral_file,
+  $ldap_conf_dir         = $ldap::server::config::ldap_conf_dir,
+  $ssl_cert_country      = $ldap::server::config::ssl_cert_country,
+  $ssl_cert_state        = $ldap::server::config::ssl_cert_state,
+  $ssl_cert_city         = $ldap::server::config::ssl_cert_city,
+  $ssl_cert_organization = $ldap::server::config::ssl_cert_organization,
+  $ssl_cert_department   = $ldap::server::config::ssl_cert_department,
+  $ssl_cert_domain       = $ldap::server::config::ssl_cert_domain,
+  $ssl_cert_email        = $ldap::server::config::ssl_cert_email
 ) {
   # Ensure our anchor points exist.
   include ldap::anchor
@@ -46,7 +55,7 @@ define ldap::server (
   $exec_server_init     = "slapadd -F '${ldap_conf_dir}' -n 0 -l '${ldif_dir}/server-init.ldif'"
   $exec_server_conf     = "ldapmodify -Y EXTERNAL -H ldapi:/// -f '${ldif_dir}/server-conf.ldif'"
   $exec_ssl_cert_create = "echo '${ssl_cert_country}\n${ssl_cert_state}\n${ssl_cert_city}\n${ssl_cert_organization}\n${ssl_cert_department}\n${ssl_cert_domain}\n${ssl_cert_email}' | openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout '${ssl_key_file}' -out '${ssl_cert_file}'"
-  $exec_ssl_cert_exists = "test -f '${config_TLSCertificateFile}' || test -f '${config_TLSCertificateKeyFile}'"
+  $exec_ssl_cert_exists = "test -f '${ssl_cert_file}' || test -f '${ssl_key_file}'"
 
   case $ensure {
     'present','installed','latest': {
@@ -70,17 +79,30 @@ define ldap::server (
           unless  => $exec_ssl_cert_exists,
         }
       }
+
+      include ldap::utils::config
+      if( ! defined( Ldap::Utils[ 'ldap-utils' ] ) ) {
+        ldap::utils{ 'ldap-utils':
+          ensure   => 'present',
+          base_dn  => $base_dn,
+          root_dn  => $root_dn,
+          password => $password,
+        }
+      }
+
       package{ $packages:
         ensure  => $ensure,
         require => Anchor[ 'phase1' ],
         before  => Anchor[ 'phase2' ],
       }
+
       service{ $services:
         ensure  => 'running',
         enable  => 'true',
         require => Anchor[ 'phase3' ],
         before  => Anchor[ 'phase4' ],
       }
+
       directory{ [ $ldif_dir, $directory_base ]:
         ensure  => 'present',
         owner   => $user,
@@ -144,15 +166,18 @@ define ldap::server (
         ensure => $ensure,
         require => Service[ $services ],
       }
+
       service{ $services:
         ensure => 'stopped',
         enable => 'false',
       }
+
       directory{ $ldif_dir:
         ensure  => 'absent',
         recurse => 'true',
         require => Service[ $services ],
       }
+
       if( $config_ensure == 'purged' ) {
         directory{ $directory_base:
           ensure  => 'absent',

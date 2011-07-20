@@ -1,0 +1,20 @@
+dn: <%= config_basedn %>
+objectClass: dcObject
+objectClass: organizationalUnit
+<%= config_basedn.split(',').at(0).split('=').at(0) %>: <%= config_basedn.split(',').at(0).split('=').at(1) %>
+ou: <%= config_basedn %>
+
+dn: <%= config_rootdn %>
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+<%= config_rootdn.split(',').at(0).split('=').at(0) %>: <%= config_rootdn.split(',').at(0).split('=').at(1) %>
+description: LDAP administrator
+userPassword: <%= config_password %>
+
+dn: ou=people,<%= config_basedn %>
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,<%= config_basedn %>
+objectClass: organizationalUnit
+ou: groups

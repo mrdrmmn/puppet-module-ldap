@@ -1,0 +1,25 @@
+dn: cn=config
+objectClass: olcGlobal
+cn: config
+#olcArgsFile: /var/run/slapd/slapd.args
+#olcLogLevel: none
+olcPidFile: /var/run/slapd/slapd.pid
+#olcToolThreads: 1
+structuralObjectClass: olcGlobal
+
+dn: cn=module,cn=config
+objectClass: olcModuleList
+olcModulePath: /usr/lib/ldap
+olcModuleLoad: back_hdb
+structuralObjectClass: olcModuleList
+
+dn: olcDatabase=config,cn=config
+objectClass: olcDatabaseConfig
+olcAccess: to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external
+ ,cn=auth manage by * break
+structuralObjectClass: olcDatabaseConfig
+
+dn: olcBackend=hdb,cn=config
+objectClass: olcBackendConfig
+structuralObjectClass: olcBackendConfig
+

@@ -1,0 +1,74 @@
+dn: cn=config
+changetype: modify
+<% if has_variable?("config_ArgsFile") and config_ArgsFile != :undef -%>
+replace: olcArgsFile
+olcArgsFile: <%= config_ArgsFile %>
+-
+<% end -%>
+<% if has_variable?("config_LdapLogLevel") and config_LdapLogLevel != :undef -%>
+replace: olcLogLevel
+olcLogLevel: <%= config_LdapLogLevel %>
+-
+<% end -%>
+<% if has_variable?("config_PidFile") and config_PidFile != :undef -%>
+replace: olcPidFile
+olcPidFile: <%= config_PidFile %>
+-
+<% end -%>
+<% if has_variable?("config_ToolThreads") and config_ToolThreads != :undef -%>
+replace: olcToolThreads
+olcToolThreads: <%= config_ToolThreads %>
+-
+<% end -%>
+<% if has_variable?("config_TLSVerifyClient") and config_TLSVerifyClient != :undef -%>
+replace: olcTLSVerifyClient
+olcTLSVerifyClient: <%= config_TLSVerifyClient %>
+-
+<% end -%>
+<% if has_variable?("config_TLSCACertificateFile") and config_TLSCACertificateFile != :undef -%>
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: <%= config_TLSCACertificateFile %>
+-
+<% end -%>
+<% if has_variable?("config_TLSCACertificatePath") and config_TLSCACertificatePath != :undef -%>
+replace: olcTLSCACertificatePath
+olcTLSCACertificatePath: <%= config_TLSCACertificatePath %>
+-
+<% end -%>
+<% if has_variable?("config_TLSCertificateFile") and config_TLSCertificateFile != :undef -%>
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: <%= config_TLSCertificateFile %>
+-
+<% end -%>
+<% if has_variable?("config_TLSCertificateKeyFile") and config_TLSCertificateKeyFile != :undef -%>
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: <%= config_TLSCertificateKeyFile %>
+-
+<% end -%>
+<% if has_variable?("config_TLSCipherSuite") and config_TLSCipherSuite != :undef -%>
+replace: olcTLSCipherSuite
+olcTLSCipherSuite: <%= config_TLSCipherSuite %>
+-
+<% end -%>
+<% if has_variable?("config_TLSRandFile") and config_TLSRandFile != :undef -%>
+replace: olcTLSRandFile
+olcTLSRandFile: <%= config_TLSRandFile %>
+-
+<% end -%>
+<% if has_variable?("config_TLSEphemeralDHParamFile") and config_TLSEphemeralDHParamFile != :undef -%>
+replace: olcTLSEphemeralDHParamFile
+olcTLSEphemeralDHParamFile: <%= config_TLSEphemeralDHParamFile %>
+-
+<% end -%>
+replace: olcSecurity
+olcSecurity: ssf=256
+olcSecurity: tls=256
+olcSecurity: update_ssf=256
+olcSecurity: update_tls=256
+olcSecurity: simple_bind=256
+-
+replace: olcLocalSSF
+olcLocalSSF: 0
+-
+replace: olcSaslSecProps
+olcSaslSecProps: minssf=0
