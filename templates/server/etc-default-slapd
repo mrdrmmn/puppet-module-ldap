@@ -1,21 +1,34 @@
+<%- config = scope.parent.to_hash %>
 # Default location of the slapd.conf file or slapd.d cn=config directory. If
 # empty, use the compiled-in default (/etc/ldap/slapd.d with a fallback to
 # /etc/ldap/slapd.conf).
+<% if config['ldap_conf_dir'] != '' and config['ldap_conf_dir'] != :undef -%>
+SLAPD_CONF="<%= config['ldap_conf_dir'] %>"
+<% else -%>
 SLAPD_CONF=
+<% end -%>
 
 # System account to run the slapd server under. If empty the server
 # will run as root.
-SLAPD_USER="openldap"
+<% if config['user'] != '' and config['user'] != :undef -%>
+SLAPD_USER="<%= config['user'] %>"
+<% else -%>
+SLAPD_USER=
+<% end -%>
 
 # System group to run the slapd server under. If empty the server will
 # run in the primary group of its user.
-SLAPD_GROUP="openldap"
+<% if config['group'] != '' and config['group'] != :undef -%>
+SLAPD_GROUP="<%= config['group'] %>"
+<% else -%>
+SLAPD_GROUP=
+<% end -%>
 
 # Path to the pid file of the slapd server. If not set the init.d script
 # will try to figure it out from $SLAPD_CONF (/etc/ldap/slapd.d by
 # default)
-<% if has_variable?("config_PidFile") and config_PidFile != :undef -%>
-SLAPD_PIDFILE="<%= config_PidFile %>"
+<% if config['pid_file'] != '' and config['pid_file'] != :undef -%>
+SLAPD_PIDFILE="<%= config['pid_file'] %>"
 <% else -%>
 SLAPD_PIDFILE=
 <% end -%>
@@ -25,7 +38,11 @@ SLAPD_PIDFILE=
 # sockets.
 # Example usage:
 # SLAPD_SERVICES="ldap://127.0.0.1:389/ ldaps:/// ldapi:///"
-SLAPD_SERVICES="ldap:/// ldapi:///"
+<% if config['protocols'] != '' and config['protocols'] != :undef -%>
+SLAPD_SERVICES="<%= config['protocols'].map{ |x| "#{x}:///" }.join(" ") %>"
+<% else -%>
+SLAPD_SERVICES=
+<% end -%>
 
 # If SLAPD_NO_START is set, the init script will not start or restart
 # slapd (but stop will still work).  Uncomment this if you are

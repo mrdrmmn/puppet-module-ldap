@@ -12,98 +12,66 @@
 #
 # [Remember: No empty lines between comments and class definition]
 define ldap::server::directory (
-  $ensure         = '',
-  $owner          = '',
-  $group          = '',
-  $user           = '',
-  $ldif_dir       = '',
-  $directory_base = '',
-  $password       = '',
-  $basedn         = '',
-  $rootdn         = ''
+  $ensure         = $ldap::server::config::ensure,
+  $user           = $ldap::server::config::user,
+  $group          = $ldap::server::config::group,
+  $root_cn        = $ldap::server::config::root_cn,
+  $password       = $ldap::server::config::password,
+  $directory_base = $ldap::server::config::directory_base,
+  $ldif_dir       = $ldap::server::config::ldif_dir
 ) {
   include ldap::anchor
+  
+  # Grab the base dn of our directory from the name of this define.
+  $base_dn = $name
 
-  include ldap::server::defaults
-  $config_ensure         = $ensure ? {
-    ''      => $ldap::server::defaults::ensure,
-    default => $ensure
-  }
-  $config_owner          = $owner ? {
-    ''      => $ldap::server::defaults::owner,
-    default => $owner
-  }
-  $config_group          = $group ? {
-    ''      =>$ldap::server::defaults::group,
-    default => $group
-  }
-  $config_ldif_dir       = $ldif_dir ? {
-    ''      =>$ldap::server::defaults::ldif_dir,
-    default => $ldif_dir
-  }
-  $config_directory_base = $directory_base ? {
-    ''      => $ldap::server::defaults::directory_base,
-    default => $directory_base
-  }
-  $config_password       = $password ? {
-    ''      => $ldap::server::defaults::password,
-    default => $password
-  }
-
-  # Manipulate our variables as needed.
-  $config_basedn = $basedn ? {
-    ''      => $name,
-    default => $basedn
-  }
-  $config_rootdn = $rootdn ? {
-    ''      => "cn=admin,${config_basedn}",
-    default => $rootdn
-  }
-  $directory_path                = "${config_directory_base}/${config_basedn}"
-  $directory_conf_file           = "${config_ldif_dir}/${config_basedn}-conf.ldif"
-  $directory_init_file           = "${config_ldif_dir}/${config_basedn}-init.ldif"
-  $exec_directory_configure      = "ldapadd -Y EXTERNAL -H ldapi:/// -f '${directory_conf_file}'"
-  $exec_directory_is_configured  = "test -n \"`ldapsearch -Y EXTERNAL -H ldapi:/// -LLL -Q -b cn=config -s sub '(&(objectClass=olcDatabaseConfig)(olcSuffix=${config_basedn}))' dn`\""
+  $directory_path                = "${directory_base}/${base_dn}"
+  $directory_init_file           = "${ldif_dir}/${base_dn}-init.ldif"
   $exec_directory_initialize     = "ldapadd -Y EXTERNAL -H ldapi:/// -f '${directory_init_file}'"
-  $exec_directory_is_initialized = "ldapsearch -Y EXTERNAL -H ldapi:/// -b '${config_basedn}' -s base"
+  $exec_directory_is_initialized = "test -n \"`ldapsearch -Y EXTERNAL -H ldapi:/// -LLL -Q -b cn=config -s sub '(&(objectClass=olcDatabaseConfig)(olcSuffix=${base_dn}))' dn`\""
+  $directory_conf_file           = "${ldif_dir}/${base_dn}-conf.ldif"
+  $exec_directory_configure      = "ldapadd -Z -y /etc/ldap.secret -D 'cn=${root_cn},${base_dn}' -f '${directory_conf_file}'"
+  $exec_directory_is_configured  = "test -n \"`ldapsearch -Z -y /etc/ldap.secret -D 'cn=${root_cn},${base_dn}' -LLL -s base 2>/dev/null`\""
 
-  case $config_ensure {
+  case $ensure {
     'present','installed': {
       ::directory{ $directory_path:
-        owner   => $config_owner,
-        group   => $config_group,
+        owner   => $user,
+        group   => $group,
         mode    => '0700',
         recurse => 'true',
         require => Anchor[ 'phase3' ],
         before  => Anchor[ 'phase4' ],
       }
-      file{ $directory_conf_file:
+
+      file{ $directory_init_file:
         ensure  => 'present',
-        owner   => $config_owner,
-        group   => $config_group,
-        content => template( 'ldap/server/directory-conf.ldif' ),
+        owner   => $user,
+        group   => $group,
+        content => template( 'ldap/server/directory-init.ldif' ),
         require => Anchor[ 'phase3' ],
         before  => Anchor[ 'phase4' ],
       }
-      file{ $directory_init_file:
+      exec{ $exec_directory_initialize:
+        path    => '/usr/bin',
+        unless  => $exec_directory_is_initialized,
+        require => Anchor[ 'phase4' ],
+        before  => Anchor[ 'phase5' ],
+      }
+
+      file{ $directory_conf_file:
         ensure  => 'present',
-        owner   => $config_owner,
-        group   => $config_group,
-        content => template( 'ldap/server/directory-init.ldif' ),
+        owner   => $user,
+        group   => $group,
+        content => template( 'ldap/server/directory-conf.ldif' ),
         require => Anchor[ 'phase3' ],
         before  => Anchor[ 'phase4' ],
       }
       exec{ $exec_directory_configure:
         path    => '/usr/bin',
         unless  => $exec_directory_is_configured,
-        require => Anchor[ 'phase4' ],
+        require => Exec[ $exec_directory_initialize ],
         before  => Anchor[ 'phase5' ],
-      }
-      exec{ $exec_directory_initialize:
-        path    => '/usr/bin',
-        unless  => $exec_directory_is_initialized,
-        require => Anchor[ 'phase5' ],
-        before  => Anchor[ 'phase6' ],
       }
     }
     

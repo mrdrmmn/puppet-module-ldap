@@ -1,10 +1,14 @@
+<%- config = scope.to_hash -%>
 dn: cn=config
 objectClass: olcGlobal
 cn: config
-#olcArgsFile: /var/run/slapd/slapd.args
-#olcLogLevel: none
-olcPidFile: /var/run/slapd/slapd.pid
-#olcToolThreads: 1
+<% if config['args_file'] != '' -%>
+olcArgsFile: <%= config['args_file'] %>
+<% end -%>
+<% if config['pid_file'] != '' -%>
+olcPidFile: <%= config['pid_file'] %>
+<% end -%>
+olcSecurity: ssf=0
 structuralObjectClass: olcGlobal
 
 dn: cn=module,cn=config
@@ -22,4 +26,3 @@ structuralObjectClass: olcDatabaseConfig
 dn: olcBackend=hdb,cn=config
 objectClass: olcBackendConfig
 structuralObjectClass: olcBackendConfig
-

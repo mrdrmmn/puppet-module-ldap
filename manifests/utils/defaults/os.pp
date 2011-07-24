@@ -6,7 +6,7 @@ class ldap::utils::defaults::os inherits ldap::config {
         'ldapscripts',
       ]
       $conf_files   = [
-        'present:absent:root:root:0644:ldap.conf:/etc/ldap/ldap.conf',
+        'present:absent:root:root:0644:utils/ldap.conf:/etc/ldap/ldap.conf',
       ]
     }
 

@@ -10,7 +10,7 @@ class ldap::server::defaults::os inherits ldap::server::defaults {
       $conf_files   = [
         'present:absent:root:root:0644:server/etc-default-slapd:/etc/default/slapd',
       ]
-      $ldap_conf_dir = "/etc/ldap/slapd.d"
+      $ldap_conf_dir = '/etc/ldap/slapd.d'
     }
     default: {
       fail( "$operatingsystem is not currently supported" )
