@@ -1,0 +1,28 @@
+<%=
+  config = scope.parent.to_hash
+  protocol = config['protocol']
+  addr     = config['server_addr']
+
+  if protocol == '' 
+    protocol = 'ldap'
+    if config['ssl_mode'] == 'on'
+      protocol = 'ldaps'
+    elsif addr != '' and addr.chr == '/'
+      protocol = 'ldapi'
+    end
+  end
+  uri = "#{protocol}://"
+
+  if addr != ''
+    addr.sub!( /\//, '%2F' )
+  end
+  uri = "#{uri}#{addr}"
+
+  if ! protocol[4] and config['port'] != ''
+    uri = "#{uri}:#{config['port']}"
+  elsif protocol[4] == 's' and config['ssl_port'] != ''
+    uri = "#{uri}:#{config['ssl_port']}"
+  end
+  uri = "#{uri}/"
+  uri
+-%>
