@@ -1,6 +1,6 @@
 class ldap::utils::defaults::os inherits ldap::config {
   case $operatingsystem {
-    'ubuntu': {
+    'ubuntu','debian': {
       $packages     = [
         'ldap-utils',
         'ldapscripts',
@@ -12,7 +12,7 @@ class ldap::utils::defaults::os inherits ldap::config {
         'present:absent:root:root:0644:utils/ldapscripts-runtime:/usr/share/ldapscripts/runtime',
       ]
     }
-    'linux': {
+    'linux','centos': {
       $packages = [
         'openldap-clients',
       ]

@@ -11,7 +11,7 @@
   else
     servers.push( config['server_nodes'] )
   end
-  servers.push( config['server_addr'] ) if ! servers.count
+  servers.push( config['server_addr'] ) if ! servers.length
 
   require 'resolv'
   dns = Resolv.new()

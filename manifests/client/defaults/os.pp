@@ -1,6 +1,6 @@
 class ldap::client::defaults::os inherits ldap::client::defaults {
   case $operatingsystem {
-    'ubuntu': {
+    'ubuntu','debian': {
       $packages   = [
         'nss-updatedb',
         'libpam-ccreds',
@@ -23,7 +23,7 @@ class ldap::client::defaults::os inherits ldap::client::defaults {
         'openldap',
       ]
     }
-    'linux': {
+    'linux','centos': {
       $packages = [
         'pam_ccreds',
         'nss_db',

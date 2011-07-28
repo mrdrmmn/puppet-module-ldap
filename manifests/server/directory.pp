@@ -84,7 +84,7 @@ define ldap::server::directory (
       ::directory{ $directory_path:
         owner   => $user,
         group   => $group,
-        mode    => '0700',
+        mode    => 0700,
         recurse => 'true',
       }
 

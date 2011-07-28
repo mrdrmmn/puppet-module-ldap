@@ -1,6 +1,6 @@
 class ldap::server::defaults::os inherits ldap::server::defaults {
   case $operatingsystem {
-    'ubuntu': {
+    'ubuntu','debian': {
       $packages     = [
         'slapd',
       ]
@@ -11,8 +11,9 @@ class ldap::server::defaults::os inherits ldap::server::defaults {
         'present:absent:root:root:0644:server/debian/slapd:/etc/default/slapd',
       ]
       $ldap_conf_dir = '/etc/ldap/slapd.d'
+      $pid_file = '/var/run/slapd/slapd.pid'
     }
-    'linux': {
+    'linux','centos': {
       $packages = [
         'openldap-servers',
       ]
@@ -23,7 +24,7 @@ class ldap::server::defaults::os inherits ldap::server::defaults {
         'present:absent:root:root:0644:server/redhat/ldap:/etc/sysconfig/ldap',
       ]
       $ldap_conf_dir = '/etc/openldap/slapd.d'
-      $pid_file = 'var/run/openldap/slapd.pid'
+      $pid_file = '/var/run/openldap/slapd.pid'
     }
     default: {
       fail( "$operatingsystem is not currently supported" )

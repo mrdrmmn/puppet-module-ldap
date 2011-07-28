@@ -115,7 +115,7 @@ define ldap::server (
           ensure  => 'file',
           owner   => $user,
           group   => $group,
-          mode    => $mode,
+          mode    => 0600,
           notify  => Exec[ 'ldap-ssl-cert-create' ],
         }
       }
@@ -124,7 +124,7 @@ define ldap::server (
           ensure  => 'file',
           owner   => $user,
           group   => $group,
-          mode    => $mode,
+          mode    => 0600,
           notify  => Exec[ 'ldap-ssl-cert-create' ],
         }
       }
@@ -166,7 +166,7 @@ define ldap::server (
         ensure  => 'present',
         owner   => $user,
         group   => $group,
-        mode    => '0700',
+        mode    => 0700,
         recurse => true,
         require => Exec[ 'ldap-remove-conf' ],
         before  => Exec[ 'ldap-server-init' ],
@@ -177,7 +177,7 @@ define ldap::server (
         ensure  => 'present',
         owner   => $user,
         group   => $group,
-        mode    => '0600',
+        mode    => 0600,
         content => template( 'ldap/server/server-init.ldif' ),
       }
       exec{ 'ldap-server-init':
@@ -201,7 +201,7 @@ define ldap::server (
         ensure  => 'present',
         owner   => $user,
         group   => $group,
-        mode    => '0600',
+        mode    => 0600,
         content => template( 'ldap/server/server-populate.ldif' ),
       }
       exec{ 'ldap-server-populate':
@@ -221,7 +221,7 @@ define ldap::server (
         ensure  => 'present',
         owner   => $user,
         group   => $group,
-        mode    => '0600',
+        mode    => 0600,
         content => template( 'ldap/server/server-conf.ldif' ),
         notify      => [
           Exec[ 'ldap-server-conf' ],
