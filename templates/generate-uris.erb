@@ -1,28 +1,50 @@
 <%=
-  config = scope.parent.to_hash
-  protocol = config['protocol']
-  addr     = config['server_addr']
+  config = scope.to_hash
+  config = scope.parent.to_hash if ! config.has_key?( 'server_nodes' )
 
-  if protocol == '' 
-    protocol = 'ldap'
-    if config['ssl_mode'] == 'on'
-      protocol = 'ldaps'
-    elsif addr != '' and addr.chr == '/'
-      protocol = 'ldapi'
+  protocol  = config['protocol']
+  uris      = Array.new()
+
+  servers   = Array.new()
+  if config['server_nodes'].kind_of? Array
+    servers.concat( config['server_nodes'] )
+  else
+    servers.push( config['server_nodes'] )
+  end
+  servers.push( config['server_addr'] ) if ! servers.count
+
+  require 'resolv'
+  dns = Resolv.new()
+
+  servers.each do |server|
+    # We really don't want to use hostnames, but if we cannot lookup and ip
+    # for this host, we will.  Obviously things won't be quite right, but
+    # it makes sure we won't completely screw up replication ( I think ).
+    addr = dns.getaddress( server ).sort[0]
+    addr = server if( ! addr )
+
+    if protocol == '' 
+      protocol = 'ldap'
+      if config['ssl_mode'] == 'yes'
+        protocol = 'ldaps'
+      elsif addr != '' and addr[0] == '/'
+        protocol = 'ldapi'
+      end
     end
-  end
-  uri = "#{protocol}://"
+    uri = "#{protocol}://"
 
-  if addr != ''
-    addr.sub!( /\//, '%2F' )
-  end
-  uri = "#{uri}#{addr}"
+    if addr != ''
+      addr.sub!( /\//, '%2F' )
+    end
+    uri = "#{uri}#{addr}"
 
-  if ! protocol[4] and config['port'] != ''
-    uri = "#{uri}:#{config['port']}"
-  elsif protocol[4] == 's' and config['ssl_port'] != ''
-    uri = "#{uri}:#{config['ssl_port']}"
+    if protocol == "ldap" and config['port'] != ''
+      uri = "#{uri}:#{config['port']}"
+    elsif protocol == 'ldaps' and config['ssl_port'] != ''
+      uri = "#{uri}:#{config['ssl_port']}"
+    end
+    uri = "#{uri}/"
+    uris.push( uri )
   end
-  uri = "#{uri}/"
-  uri
+  uris
 -%>

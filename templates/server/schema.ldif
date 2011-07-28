@@ -1,5 +1,0 @@
-<%- config = scope.to_hash -%>
-<% config['schemas'].map{ |x| "ldap/server/schema/#{x}" }.each do |schema| %>
-# <%= schema %>
-<%= scope.function_template( schema ) %>
-<% end %>

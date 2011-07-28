@@ -1,6 +1,8 @@
 class ldap::client::uninstall {
-  include ldap::client::config
-  ldap::client{ 'ldap-client':
-    ensure => 'purged'
+  if( ! defined( Ldap::Client[ 'ldap::client' ] ) ) {
+    include ldap::client::config
+    ldap::client{ 'ldap::client':
+      ensure => 'absent'
+    }
   }
 }

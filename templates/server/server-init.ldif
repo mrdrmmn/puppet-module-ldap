@@ -15,14 +15,23 @@ dn: cn=module,cn=config
 objectClass: olcModuleList
 olcModulePath: /usr/lib/ldap
 olcModuleLoad: back_hdb
+olcModuleLoad: syncprov
 structuralObjectClass: olcModuleList
 
 dn: olcDatabase=config,cn=config
 objectClass: olcDatabaseConfig
-olcAccess: to * by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external
- ,cn=auth manage by * break
+olcAccess: to *
+  by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
+olcRootDN: cn=config
+olcRootPW: <%= scope.function_template( 'ldap/encrypt-password.erb' ) %>
 structuralObjectClass: olcDatabaseConfig
 
 dn: olcBackend=hdb,cn=config
 objectClass: olcBackendConfig
 structuralObjectClass: olcBackendConfig
+
+dn: olcOverlay=syncprov,olcDatabase={0}config,cn=config
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+olcOverlay: syncprov
+

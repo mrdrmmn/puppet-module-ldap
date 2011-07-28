@@ -1,4 +1,7 @@
-<%- config = scope.to_hash -%>
+<%- 
+  config = scope.to_hash
+  config = scope.parent.to_hash if ! config.has_key?( 'server_nodes' )
+-%>
 dn: olcDatabase=hdb,cn=config
 objectClass: olcDatabaseConfig
 objectClass: olcHdbConfig
@@ -6,21 +9,19 @@ olcDatabase: hdb
 olcDbDirectory: <%= config['directory_path'] %>
 olcSuffix: <%= config['base_dn'] %>
 olcLastMod: TRUE
-olcRootDN: cn=<%= config['root_cn'] %>,<%= config['base_dn'] %>
+olcRootDN: <%= config['base_dn'] %>
 olcRootPW: <%= scope.function_template( 'ldap/encrypt-password.erb' ) %>
-olcSecurity: ssf=<%= config['ssl_minimum'] %>
+#olcSecurity: ssf=<%= config['ssl_minimum'] %>
 olcAccess: to *
   by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
   by * break
 olcAccess: to attrs=userPassword,shadowLastChange
   by tls_ssf=<%= config['ssl_minimum'] %> self write
   by tls_ssf=<%= config['ssl_minimum'] %> anonymous auth
-  by tls_ssf=<%= config['ssl_minimum'] %> dn="cn=<%= config['root_cn'] %>,<%= config['base_dn'] %>" write
   by * none
 olcAccess: to dn.base="" by ssf=<%= config['ssl_minimum'] %> * read
 olcAccess: to *
   by tls_ssf=<%= config['ssl_minimum'] %> self write
-  by tls_ssf=<%= config['ssl_minimum'] %> dn="cn=<%= config['root_cn'] %>,<%= config['base_dn'] %>" write
   by tls_ssf=<%= config['ssl_minimum'] %> * read
 olcDbConfig: set_cachesize 0 2097152 0
 olcDbConfig: set_lk_max_objects 1500

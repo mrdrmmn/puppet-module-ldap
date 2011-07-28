@@ -1,20 +1,27 @@
-<%- config = scope.to_hash -%>
-dn: <%= config['base_dn'] %>
-objectClass: dcObject
-objectClass: organizationalUnit
-<%= config['base_dn'].split(',').at(0).split('=').at(0) %>: <%= config['base_dn'].split(',').at(0).split('=').at(1) %>
-ou: <%= config['base_dn'] %>
+<%-
+  config = scope.to_hash
+  config = scope.parent.to_hash if ! config.has_key?( 'server_nodes' )
+  ENV['PATH'] = config['exec_path']
 
-dn: cn=<%= config['root_cn'] %>,<%= config['base_dn'] %>
-objectClass: simpleSecurityObject
-objectClass: organizationalRole
-cn: root
-description: Directory Administrator
-userPassword: <%= scope.function_template( 'ldap/encrypt-password.erb' ) %>
-
-<% [ 'People', 'Groups', 'Hosts', 'Services', 'Networks', 'Protocols', 'Rpc', 'Ethers', 'Aliases', 'Netgroup' ].each do |ou| -%>
-dn: ou=<%= ou %>,<%= config['base_dn'] %>
-objectClass: organizationalUnit
-ou: <%= ou %>
+  config_dn=`ldapsearch -y /etc/ldap.secret -D cn=config -b cn=config -LLL "(&(objectClass=olcDatabaseConfig)(olcSuffix=#{config['base_dn']}))" dn`.strip
+  if config_dn 
+-%>
+<%= config_dn %>
+changetype: modify
+replace: olcSyncRepl
+<% sid = 0 -%>
+<% scope.function_template( 'ldap/generate-uris.erb' ).split( /\s+/ ).each do |uri| -%>
+olcSyncRepl: rid=<%= sid += 1 %> provider=<%= uri %> binddn=<%= base_dn %> bindmethod=simple
+  credentials=<%= password %> searchbase=<%= base_dn %> type=refreshAndPersist
+  retry="5 5 300 5" timeout=1
+<% end -%>
+-
+replace: olcMirrorMode
+olcMirrorMode: TRUE
+-
+replace: olcSecurity
+olcSecurity: 0
+#olcSecurity: ssf=<%= config['ssl_minimum'] %>
+_
 
 <% end %>

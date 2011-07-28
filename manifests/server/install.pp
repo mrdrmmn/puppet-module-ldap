@@ -1,6 +1,8 @@
 class ldap::server::install {
-  include ldap::server::config
-  ldap::server{ 'ldap-server':
-    ensure => 'present'
+  if( ! defined( Ldap::Server[ 'ldap::server' ] ) ) {
+    include ldap::server::config
+    ldap::server{ 'ldap::server':
+      ensure => 'present'
+    }
   }
 }

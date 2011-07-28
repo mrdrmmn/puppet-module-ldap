@@ -1,0 +1,11 @@
+<%-
+  config = scope.to_hash
+  config = scope.parent.to_hash if ! config.has_key?( 'server_nodes' )
+-%>
+<% config['schemas'].map{ |x| "ldap/server/schema/#{x}" }.each do |schema| -%>
+<%-
+  
+-%>
+# <%= schema %>
+<%= scope.function_template( schema ) %>
+<% end -%>

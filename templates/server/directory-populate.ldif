@@ -1,0 +1,22 @@
+<%- 
+  config = scope.to_hash
+  config = scope.parent.to_hash if ! config.has_key?( 'server_nodes' )
+-%>
+dn: <%= config['base_dn'] %>
+objectClass: dcObject
+objectClass: organizationalUnit
+<%= config['base_dn'].split(',').at(0).split('=').at(0) %>: <%= config['base_dn'].split(',').at(0).split('=').at(1) %>
+ou: <%= config['base_dn'] %>
+
+<%
+  seen = Hash.new
+  config['db_mapping'].each do |line|
+    ou = line.split( /\s*:\s*/ ).at( 3 )
+    next if ! ou or ou == '' or seen.has_key?( ou )
+    seen[ ou ] = 1
+-%>
+dn: ou=<%= ou %>,<%= config['base_dn'] %>
+objectClass: organizationalUnit
+ou: <%= ou %>
+
+<% end %>

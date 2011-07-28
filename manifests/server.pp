@@ -13,11 +13,24 @@
 # [Remember: No empty lines between comments and class definition]
 define ldap::server (
   $ensure                = $ldap::server::config::ensure,
+  $server_nodes          = $ldap::server::config::server_nodes,
+  $client_nodes          = $ldap::server::config::client_nodes,
+  $utils_nodes           = $ldap::server::config::utils_nodes,
   $user                  = $ldap::server::config::user,
   $group                 = $ldap::server::config::group,
-  $root_cn               = $ldap::server::config::root_cn,
+  $base_dn               = $ldap::server::config::base_dn,
   $password              = $ldap::server::config::password,
+  $protocols             = $ldap::server::config::protocols,
+  $protocol              = $ldap::server::config::protocol,
+  $ldap_version          = $ldap::server::config::ldap_version,
+  $server_addr           = $ldap::server::config::server_addr,
+  $port                  = $ldap::server::config::port,
+  $ssl_port              = $ldap::server::config::ssl_port,
+  $search_timelimit      = $ldap::server::config::search_timelimit,
+  $bind_timelimit        = $ldap::server::config::bind_timelimit,
+  $idle_timelimit        = $ldap::server::config::idle_timelimit,
   $ldif_dir              = $ldap::server::config::ldif_dir,
+  $ldap_conf_dir         = $ldap::server::config::ldap_conf_dir,
   $directory_base        = $ldap::server::config::directory_base,
   $directories           = $ldap::server::config::directories,
   $args_file             = $ldap::server::config::args_file,
@@ -33,20 +46,28 @@ define ldap::server (
   $ssl_rand_file         = $ldap::server::config::ssl_rand_file,
   $ssl_ephemeral_file    = $ldap::server::config::ssl_ephemeral_file,
   $ssl_minimum           = $ldap::server::config::ssl_minimum,
+  $ssl_mode              = $ldap::server::config::ssl_mode,
   $sasl_minssf           = $ldap::server::config::sasl_minssf,
   $sasl_maxssf           = $ldap::server::config::sasl_maxssf,
-  $ldap_conf_dir         = $ldap::server::config::ldap_conf_dir,
-  $protocols             = $ldap::server::config::protocols,
   $ssl_cert_country      = $ldap::server::config::ssl_cert_country,
   $ssl_cert_state        = $ldap::server::config::ssl_cert_state,
   $ssl_cert_city         = $ldap::server::config::ssl_cert_city,
   $ssl_cert_organization = $ldap::server::config::ssl_cert_organization,
   $ssl_cert_department   = $ldap::server::config::ssl_cert_department,
   $ssl_cert_domain       = $ldap::server::config::ssl_cert_domain,
-  $ssl_cert_email        = $ldap::server::config::ssl_cert_email
+  $ssl_cert_email        = $ldap::server::config::ssl_cert_email,
+  $bind_policy           = $ldap::server::config::bind_policy,
+  $pam_min_uid           = $ldap::server::config::pam_min_uid,
+  $pam_max_uid           = $ldap::server::config::pam_max_uid,
+  $exec_path             = $ldap::server::config::exec_path,
+  $admin_directory       = $ldap::server::config::admin_directory
 ) {
-  # Ensure our anchor points exist.
-  include ldap::anchor
+  # Check to see if we have been called previously by utilizing as dummy
+  # resource.
+  if( defined( Ldap::Dummy[ 'ldap::server' ] ) ) {
+    fail( 'The "ldap::server" define has already been called previously in your manifest!' )
+  }
+  ldap::dummy{ 'ldap::server': }
 
   # Load our defaults and generate our config values.
   $packages   = $ldap::server::config::packages
@@ -55,26 +76,38 @@ define ldap::server (
   $schemas    = $ldap::server::config::schemas
   
   # Set up some commands we will need to exec.
-  $exec_remove_conf     = "find '${ldap_conf_dir}' -mindepth 1 -maxdepth 1 -exec rm -rf {} \\;"
+  $exec_remove_conf     = "rm -rf '${ldap_conf_dir}'"
   $exec_server_init     = "slapadd -F '${ldap_conf_dir}' -n 0 -l '${ldif_dir}/server-init.ldif'"
-  $exec_load_schema     = "slapadd -F '${ldap_conf_dir}' -n 0 -l '${ldif_dir}/schema.ldif'"
+  $exec_server_populate = "ldapadd -Y EXTERNAL -H ldapi:/// -f '${ldif_dir}/server-populate.ldif'"
   $exec_server_conf     = "ldapmodify -Y EXTERNAL -H ldapi:/// -f '${ldif_dir}/server-conf.ldif'"
   $exec_ssl_cert_create = "echo '${ssl_cert_country}\n${ssl_cert_state}\n${ssl_cert_city}\n${ssl_cert_organization}\n${ssl_cert_department}\n${ssl_cert_domain}\n${ssl_cert_email}' | openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout '${ssl_key_file}' -out '${ssl_cert_file}'"
   $exec_ssl_cert_exists = "test -s '${ssl_cert_file}' || test -s '${ssl_key_file}'"
 
+  Exec{
+    path => $exec_path,
+    logoutput => 'on_failure',
+  }
+
   case $ensure {
-    'present','installed','latest': {
+    'present': {
       if( $ldap_conf_dir != '' ) {
         # If this is triggers, it means that the slapd config has not
         # been initialized and it is safe to blow away and recreate
         #from scratch a bit later on.
         exec{ 'ldap-notify-if-uninitialized':
           command  => 'true',
-          path     => '/bin:/usr/bin',
-          before   => Anchor[ 'phase1' ],
-          notify   => Exec[ 'ldap-server-init' ],
-          unless   => "test -d '${ldap_conf_dir}'",
+          notify   => [
+            Exec[ 'ldap-server-init' ],
+            Exec[ 'ldap-remove-conf' ],
+          ],
+          unless    => "test -d '${ldap_conf_dir}'",
         }
+      }
+      exec{ 'ldap-remove-conf':
+        command     => $exec_remove_conf,
+        require     => Package[ $packages ],
+        notify      => Exec[ 'ldap-server-init' ],
+        refreshonly => 'true'
       }
 
       if( ! defined( File[ $ssl_cert_file ] ) ) {
@@ -97,43 +130,46 @@ define ldap::server (
       }
       exec{ 'ldap-ssl-cert-create':
         command     => $exec_ssl_cert_create,
-        path        => '/bin:/usr/bin',
-        before      => Anchor[ 'phase1' ],
         unless      => $exec_ssl_cert_exists,
         refreshonly => 'true'
       }
 
-      include ldap::utils::config
-      if( ! defined( Ldap::Utils[ 'ldap-utils' ] ) ) {
-        ldap::utils{ 'ldap-utils':
+      if( ! defined( Ldap::Utils[ 'ldap::utils' ] ) ) {
+        include ldap::utils::config
+        ldap::utils{ 'ldap::utils':
           ensure   => 'present',
           base_dn  => inline_template( '<%= directories.at(0) %>' ),
-          root_cn  => $root_cn,
           password => $password,
         }
       }
 
       package{ $packages:
         ensure  => $ensure,
-        require => Anchor[ 'phase1' ],
-        before  => Anchor[ 'phase2' ],
+        require => [
+          Exec[ 'ldap-notify-if-uninitialized' ],
+        ],
+        notify  => Service[ $services ],
       }
 
       service{ $services:
         ensure  => 'running',
         enable  => 'true',
-        require => Anchor[ 'phase3' ],
-        before  => Anchor[ 'phase4' ],
+        require => [
+          Ldap::Utils[ 'ldap::utils' ],
+        ],
+        notify  => [
+          Exec[ 'ldap-server-conf' ],
+        ],
       }
 
-      directory{ [ $ldif_dir, $directory_base ]:
+      directory{ [ $ldif_dir, $directory_base, $ldap_conf_dir ]:
         ensure  => 'present',
         owner   => $user,
         group   => $group,
         mode    => '0700',
         recurse => true,
-        require => Anchor[ 'phase2' ],
-        before  => Anchor[ 'phase3' ],
+        require => Exec[ 'ldap-remove-conf' ],
+        before  => Exec[ 'ldap-server-init' ],
       }
 
       file{ 'ldap-server-init':
@@ -143,40 +179,38 @@ define ldap::server (
         group   => $group,
         mode    => '0600',
         content => template( 'ldap/server/server-init.ldif' ),
-        require => Anchor[ 'phase2' ],
-        before  => Anchor[ 'phase3' ],
       }
       exec{ 'ldap-server-init':
         command     => $exec_server_init,
-        path        => '/usr/sbin:/usr/bin:/bin',
         user        => $user,
         group       => $group,
-        require     => Anchor[ 'phase3' ],
-        before      => Anchor[ 'phase4' ],
-        onlyif      => $exec_remove_conf,
-        notify      => Exec[ 'ldap-load-schema' ],
+        require     => [
+          File[ 'ldap-server-init'],
+          Exec[ 'ldap-ssl-cert-create' ],
+          Ldap::Dummy[ 'ldap::utils' ],
+        ],
+        notify      => [
+          Service[ $services ],
+          Exec[ 'ldap-server-populate' ],
+        ],
         refreshonly => 'true'
       }
 
-      file{ 'ldap-load-schema':
-        path    => "${ldif_dir}/schema.ldif",
+      file{ 'ldap-server-populate':
+        path    => "${ldif_dir}/server-populate.ldif",
         ensure  => 'present',
         owner   => $user,
         group   => $group,
         mode    => '0600',
-        content => template( 'ldap/server/schema.ldif' ),
-        require => Anchor[ 'phase2' ],
-        before  => Anchor[ 'phase3' ],
+        content => template( 'ldap/server/server-populate.ldif' ),
       }
-      exec{ 'ldap-load-schema':
-        command     => $exec_load_schema,
-        path        => '/usr/sbin:/usr/bin:/bin',
-        user        => $user,
-        group       => $group,
-        require     => Anchor[ 'phase3' ],
-        before      => Anchor[ 'phase4' ],
-        notify      => [
+      exec{ 'ldap-server-populate':
+        command     => $exec_server_populate,
+        require     => [
+          File[ 'ldap-server-populate' ],
           Service[ $services ],
+        ],
+        notify      => [
           Exec[ 'ldap-server-conf' ],
         ],
         refreshonly => 'true'
@@ -189,16 +223,12 @@ define ldap::server (
         group   => $group,
         mode    => '0600',
         content => template( 'ldap/server/server-conf.ldif' ),
-        require => Anchor[ 'phase2' ],
-        before  => Anchor[ 'phase3' ],
         notify      => [
           Exec[ 'ldap-server-conf' ],
         ],
       }
       exec{ 'ldap-server-conf':
         command     => $exec_server_conf,
-        path        => '/usr/bin',
-        before      => Anchor[ 'phase4' ],
         require     => Service[ $services ],
         refreshonly => 'true',
       }
@@ -207,14 +237,18 @@ define ldap::server (
         ensure         => 'present',
         user           => $user,
         group          => $group,
-        root_cn        => $root_cn,
         password       => $password,
         directory_base => $directory_base,
         ldif_dir       => $ldif_dir,
+        require        => [ 
+          Exec[ 'ldap-server-conf' ],
+          Ldap::Toggle[ $conf_files ],
+          Service[ $services ],
+        ]
       }
     }
 
-    'absent','removed','purged': {
+    'absent','purged': {
       package{ $packages:
         ensure => $ensure,
         require => Service[ $services ],
@@ -227,14 +261,12 @@ define ldap::server (
 
       directory{ $ldif_dir:
         ensure  => 'absent',
-        recurse => 'true',
         require => Service[ $services ],
       }
 
-      if( $config_ensure == 'purged' ) {
+      if( $ensure == 'purged' ) {
         directory{ [ $directory_base, $ldap_conf_dir ]:
           ensure  => 'absent',
-          recurse => 'true',
           require => Service[ $services ]
         }
       }
@@ -246,7 +278,6 @@ define ldap::server (
 
   ldap::toggle{ $conf_files:
     ensure => $ensure,
-    require                        => Anchor[ 'phase2' ],
-    before                         => Anchor[ 'phase3' ],
+    notify => Service[ $services ],
   }
 }

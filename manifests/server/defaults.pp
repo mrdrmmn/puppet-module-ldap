@@ -1,6 +1,6 @@
 class ldap::server::defaults inherits ldap::config {
-  $ldif_dir           = '/var/lib/puppet/state/modules/ldap'
-  $directory_base     = '/var/lib/ldap'
+  $ldif_dir           = '/var/ldap/ldif'
+  $directory_base     = '/var/ldap/directories'
   $directories        = [ $base_dn ]
   $log_level          = 'none'
   $args_file          = '/var/run/slapd/slapd.args'
@@ -8,7 +8,7 @@ class ldap::server::defaults inherits ldap::config {
   $tool_threads       = ''
   $ssl_rand_file      = ''
   $ssl_ephemeral_file = ''
-  $protocols          = [ 'ldapi', 'ldap', 'ldaps' ]
+  $protocols          = [ 'ldapi', 'ldaps' ]
   $schemas            = [
     'core.ldif',
     'cosine.ldif',

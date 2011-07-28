@@ -70,14 +70,25 @@ replace: olcSaslSecProps
 olcSaslSecProps: <%= sasl_secprops.join(',') %>
 -
 <% end -%>
-<% if config['ssl_minimum'] != '' -%>
-#replace: olcSecurity
-#olcSecurity: ssf=<%= config['ssl_minimum'] %>
-#olcSecurity: tls=<%= config['ssl_minimum'] %>
-#olcSecurity: update_ssf=<%= config['ssl_minimum'] %>
-#olcSecurity: update_tls=<%= config['ssl_minimum'] %>
-#olcSecurity: simple_bind=<%= config['ssl_minimum'] %>
-#olcSecurity: simple_bind=0
-#-
+replace: olcServerID
+<% sid = 0 -%>
+<% scope.function_template( 'ldap/generate-uris.erb' ).split( /\s+/ ).each do |uri| -%>
+olcServerID: <%= sid += 1 %> <%= uri %>
 <% end -%>
+-
 
+dn: olcDatabase={0}config,cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: <%= scope.function_template( 'ldap/encrypt-password.erb' ) %>
+-
+replace: olcSyncRepl
+<% sid = 0 -%>
+<% scope.function_template( 'ldap/generate-uris.erb' ).split( /\s+/ ).each do |uri| -%>
+olcSyncRepl: rid=<%= sid += 1 %> provider=<%= uri %> binddn="cn=config" bindmethod=simple
+  credentials=<%= password %> searchbase="cn=config" type=refreshAndPersist
+  retry="5 5 300 5" timeout=1
+<% end -%>
+-
+replace: olcMirrorMode
+olcMirrorMode: TRUE
