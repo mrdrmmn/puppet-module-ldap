@@ -13,7 +13,7 @@ structuralObjectClass: olcGlobal
 
 dn: cn=module,cn=config
 objectClass: olcModuleList
-olcModulePath: /usr/lib/ldap
+#olcModulePath: /usr/lib/ldap
 olcModuleLoad: back_hdb
 olcModuleLoad: syncprov
 structuralObjectClass: olcModuleList

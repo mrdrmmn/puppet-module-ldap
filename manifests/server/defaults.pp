@@ -3,8 +3,8 @@ class ldap::server::defaults inherits ldap::config {
   $directory_base     = '/var/ldap/directories'
   $directories        = [ $base_dn ]
   $log_level          = 'none'
-  $args_file          = '/var/run/slapd/slapd.args'
-  $pid_file           = '/var/run/slapd/slapd.pid'
+  $args_file          = ''
+  $pid_file           = ''
   $tool_threads       = ''
   $ssl_rand_file      = ''
   $ssl_ephemeral_file = ''

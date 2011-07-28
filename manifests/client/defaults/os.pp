@@ -2,7 +2,6 @@ class ldap::client::defaults::os inherits ldap::client::defaults {
   case $operatingsystem {
     'ubuntu': {
       $packages   = [
-        #'ldap-auth-client',
         'nss-updatedb',
         'libpam-ccreds',
         'libnss-db',
@@ -10,7 +9,6 @@ class ldap::client::defaults::os inherits ldap::client::defaults {
         'libpam-ldapd',
       ]
       $services   = [
-        #'libnss-ldap',
         'nslcd',
       ]
       $conf_files = [
@@ -23,6 +21,22 @@ class ldap::client::defaults::os inherits ldap::client::defaults {
       $nss_initgroups_ignoreusers = [
         'root',
         'openldap',
+      ]
+    }
+    'linux': {
+      $packages = [
+        'pam_ccreds',
+        'nss_db',
+        'nss-pam-ldapd',
+      ]
+      $services = [
+        'nslcd',
+      ]
+      $conf_files = [
+        'present:present:root:root:0644:client/nsswitch.conf:/etc/nsswitch.conf',
+        'present:absent:root:root:0644:client/ldap.conf:/etc/pam_ldap.conf',
+        'present:absent:root:root:0600:client/ldap.secret:/etc/ldap.secret',
+        'present:absent:root:root:0600:client/nslcd.conf:/etc/nslcd.conf',
       ]
     }
     default: {

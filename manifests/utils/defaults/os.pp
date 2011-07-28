@@ -12,6 +12,14 @@ class ldap::utils::defaults::os inherits ldap::config {
         'present:absent:root:root:0644:utils/ldapscripts-runtime:/usr/share/ldapscripts/runtime',
       ]
     }
+    'linux': {
+      $packages = [
+        'openldap-clients',
+      ]
+      $conf_files   = [
+        'present:absent:root:root:0644:utils/ldap.conf:/etc/openldap/ldap.conf',
+      ]
+    }
 
     default: {
       fail( "$operatingsystem is not currently supported" )
