@@ -3,9 +3,8 @@ ldap
 This is the ldap module.
 
 This module has been tested and functions on the following platforms:
+  Amazon Linux AMI 2011.02.1 Beta (EC2 instances)
+  Debian 6.0
   Ubuntu 10.04
   Ubuntu 11.04
-
-  Debian 6.0
-
-  Amazon Linux AMI 2011.02.1 Beta
+  Fedora 15

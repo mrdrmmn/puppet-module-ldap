@@ -23,7 +23,7 @@ class ldap::client::defaults::os inherits ldap::client::defaults {
         'openldap',
       ]
     }
-    'linux','centos': {
+    'linux','centos','fedora': {
       $packages = [
         'pam_ccreds',
         'nss_db',

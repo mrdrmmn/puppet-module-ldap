@@ -6,7 +6,7 @@ class ldap::defaults::os inherits ldap::defaults {
       $group = 'openldap'
       $ssl_cipher_suite = 'SECURE256:!AES-128-CBC:!ARCFOUR-128:!CAMELLIA-128-CBC:!3DES-CBC:!CAMELLIA-128-CBC'
     }
-    'linux','centos': {
+    'linux','centos','fedora': {
       $user  = 'ldap'
       $group = 'ldap'
       $ssl_cert_file         = '/etc/openldap/ssl.crt'

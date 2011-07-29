@@ -13,7 +13,7 @@ class ldap::server::defaults::os inherits ldap::server::defaults {
       $ldap_conf_dir = '/etc/ldap/slapd.d'
       $pid_file = '/var/run/slapd/slapd.pid'
     }
-    'linux','centos': {
+    'linux','centos','fedora': {
       $packages = [
         'openldap-servers',
       ]
