@@ -116,6 +116,7 @@ define ldap (
       bind_policy           => $bind_policy           ? { default => $bind_policy,           '' => $ldap::server::config::bind_policy           },
       pam_min_uid           => $pam_min_uid           ? { default => $pam_min_uid,           '' => $ldap::server::config::pam_min_uid           },
       pam_max_uid           => $pam_max_uid           ? { default => $pam_max_uid,           '' => $ldap::server::config::pam_max_uid           },
+      exec_path             => $exec_path             ? { default => $exec_path,             '' => $ldap::server::config::exec_path             },
     }
   }
   
@@ -169,6 +170,7 @@ define ldap (
       bind_policy           => $bind_policy           ? { default => $bind_policy,           '' => $ldap::client::config::bind_policy           },
       pam_min_uid           => $pam_min_uid           ? { default => $pam_min_uid,           '' => $ldap::client::config::pam_min_uid           },
       pam_max_uid           => $pam_max_uid           ? { default => $pam_max_uid,           '' => $ldap::client::config::pam_max_uid           },
+      exec_path             => $exec_path             ? { default => $exec_path,             '' => $ldap::client::config::exec_path             },
     }
   }
 
@@ -222,6 +224,7 @@ define ldap (
       bind_policy           => $bind_policy           ? { default => $bind_policy,           '' => $ldap::utils::config::bind_policy           },
       pam_min_uid           => $pam_min_uid           ? { default => $pam_min_uid,           '' => $ldap::utils::config::pam_min_uid           },
       pam_max_uid           => $pam_max_uid           ? { default => $pam_max_uid,           '' => $ldap::utils::config::pam_max_uid           },
+      exec_path             => $exec_path             ? { default => $exec_path,             '' => $ldap::utils::config::exec_path             },
     }
   }
 }

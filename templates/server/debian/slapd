@@ -1,4 +1,7 @@
-<%- config = scope.parent.to_hash %>
+<%-
+  config = scope.to_hash
+  config = scope.parent.to_hash if ! config.has_key?( 'server_nodes' )
+%>
 # Default location of the slapd.conf file or slapd.d cn=config directory. If
 # empty, use the compiled-in default (/etc/ldap/slapd.d with a fallback to
 # /etc/ldap/slapd.conf).
@@ -38,11 +41,7 @@ SLAPD_PIDFILE=
 # sockets.
 # Example usage:
 # SLAPD_SERVICES="ldap://127.0.0.1:389/ ldaps:/// ldapi:///"
-<% if config['protocols'] != '' and config['protocols'] != :undef -%>
-SLAPD_SERVICES="<%= config['protocols'].map{ |x| "#{x}:///" }.join(" ") %>"
-<% else -%>
-SLAPD_SERVICES=
-<% end -%>
+SLAPD_SERVICES="<%= scope.function_template( 'ldap/generate-local-uris.erb' ) %>"
 
 # If SLAPD_NO_START is set, the init script will not start or restart
 # slapd (but stop will still work).  Uncomment this if you are

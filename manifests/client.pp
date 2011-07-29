@@ -71,12 +71,12 @@ define ldap::client (
     'present','installed': {
       package{ $packages:
         ensure => $ensure,
+        before => Ldap::Toggle[ $conf_files ],
       }
 
       service{ $services:
         ensure => 'running',
         enable => 'true',
-        require   => Package[ $packages ],
         subscribe => Ldap::Toggle[ $conf_files ],
       }
     }
@@ -97,6 +97,6 @@ define ldap::client (
   }
 
   ldap::toggle{ $conf_files:
-    ensure => $ensure,
+    ensure  => $ensure,
   }
 }

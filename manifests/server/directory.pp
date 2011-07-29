@@ -18,7 +18,6 @@ define ldap::server::directory (
   $utils_nodes           = $ldap::server::config::utils_nodes,
   $user                  = $ldap::server::config::user,
   $group                 = $ldap::server::config::group,
-  $base_dn               = $ldap::server::config::base_dn,
   $password              = $ldap::server::config::password,
   $protocols             = $ldap::server::config::protocols,
   $protocol              = $ldap::server::config::protocol,
@@ -62,6 +61,7 @@ define ldap::server::directory (
   $exec_path             = $ldap::server::config::exec_path
 ) {
   $db_mapping = $ldap::server::config::db_mapping
+  $base_dn    = $name
 
   $directory_path                = "${directory_base}/${base_dn}"
   $directory_init_file           = "${ldif_dir}/${base_dn}-init.ldif"

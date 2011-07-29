@@ -8,30 +8,86 @@ olcArgsFile: <%= config['args_file'] %>
 <% if config['pid_file'] != '' -%>
 olcPidFile: <%= config['pid_file'] %>
 <% end -%>
+<% if config['log_level'] != '' -%>
+olcLogLevel: <%= config['log_level'] %>
+<% end -%>
+<% if config['tool_threads'] != '' -%>
+olcToolThreads: <%= config['tool_threads'] %>
+<% end -%>
+<% if config['ssl_verify_certs'] != '' -%>
+olcTLSVerifyClient: <%= config['ssl_verify_certs'] %>
+<% end -%>
+<% if config['ssl_cacert_file'] != '' -%>
+olcTLSCACertificateFile: <%= config['ssl_cacert_file'] %>
+<% end -%>
+<% if config['ssl_cacert_path'] != '' -%>
+olcTLSCACertificatePath: <%= config['ssl_cacert_path'] %>
+<% end -%>
+<% if config['ssl_cert_file'] != '' -%>
+olcTLSCertificateFile: <%= config['ssl_cert_file'] %>
+<% end -%>
+<% if config['ssl_key_file'] != '' -%>
+olcTLSCertificateKeyFile: <%= config['ssl_key_file'] %>
+<% end -%>
+<% if config['ssl_cipher_suite'] != '' -%>
+olcTLSCipherSuite: <%= config['ssl_cipher_suite'] %>
+<% end -%>
+<% if config['ssl_rand_file'] != '' -%>
+olcTLSRandFile: <%= config['ssl_rand_file'] %>
+<% end -%>
+<% if config['ssl_ephemeral_file'] != '' -%>
+olcTLSEphemeralDHParamFile: <%= config['ssl_ephemeral_file'] %>
+<% end -%>
+<% if config['sasl_minssf'] != '' and config['sasl_minssf'] != :undef -%>
+olcLocalSSF: <%= config['sasl_minssf'] %>
+<% end -%>
+<%-
+sasl_secprops = Array.new()
+if config['sasl_minssf'] != ''
+  sasl_secprops.push("minssf=#{config['sasl_minssf']}")
+end
+if config['sasl_maxssf'] != ''
+  sasl_secprops.push("maxssf=#{config['sasl_maxssf']}")
+end
+-%>
+<% if sasl_secprops.length -%>
+olcSaslSecProps: <%= sasl_secprops.join(',') %>
+<% end -%>
+<% sid = 0 -%>
+<% scope.function_template( 'ldap/generate-remote-uris.erb' ).split( /\s+/ ).each do |uri| -%>
+olcServerID: <%= sid += 1 %> <%= uri %>
+<% end -%>
 olcSecurity: ssf=0
 structuralObjectClass: olcGlobal
 
 dn: cn=module,cn=config
 objectClass: olcModuleList
-#olcModulePath: /usr/lib/ldap
 olcModuleLoad: back_hdb
 olcModuleLoad: syncprov
 structuralObjectClass: olcModuleList
-
-dn: olcDatabase=config,cn=config
-objectClass: olcDatabaseConfig
-olcAccess: to *
-  by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
-olcRootDN: cn=config
-olcRootPW: <%= scope.function_template( 'ldap/encrypt-password.erb' ) %>
-structuralObjectClass: olcDatabaseConfig
 
 dn: olcBackend=hdb,cn=config
 objectClass: olcBackendConfig
 structuralObjectClass: olcBackendConfig
 
+dn: olcDatabase=config,cn=config
+objectClass: olcDatabaseConfig
+structuralObjectClass: olcDatabaseConfig
+olcAccess: to *
+  by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
+olcRootDN: cn=config
+olcRootPW: <%= scope.function_template( 'ldap/encrypt-password.erb' ) %>
+<% if config['server_nodes'].length > 1 -%>
+<% sid = 0 -%>
+<% scope.function_template( 'ldap/generate-remote-uris.erb' ).split( /\s+/ ).each do |uri| -%>
+olcSyncRepl: rid=<%= sid += 1 %> provider=<%= uri %> binddn="cn=config" bindmethod=simple
+  credentials=<%= password %> searchbase="cn=config" type=refreshAndPersist
+  tls_reqcert=<%= config['ssl_verify_certs'] %> retry="5 5 300 5" timeout=1
+<% end -%>
+olcMirrorMode: TRUE
+
 dn: olcOverlay=syncprov,olcDatabase={0}config,cn=config
 objectClass: olcOverlayConfig
 objectClass: olcSyncProvConfig
 olcOverlay: syncprov
-
+<% end -%>
