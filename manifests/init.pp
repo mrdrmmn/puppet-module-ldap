@@ -5,7 +5,7 @@ define ldap (
   $utils_nodes           = '',
   $user                  = '',
   $group                 = '',
-  $base_dn               = '',
+  $base_dn               = undef,
   $password              = '',
   $protocols             = '',
   $protocol              = '',
@@ -19,7 +19,7 @@ define ldap (
   $ldif_dir              = '',
   $ldap_conf_dir         = '',
   $directory_base        = '',
-  $directories           = '',
+  $directories           = undef,
   $args_file             = '',
   $log_level             = '',
   $pid_file              = '',
@@ -64,6 +64,23 @@ define ldap (
   $config_client_nodes = $client_nodes ? { default => $client_nodes, ''      => $ldap::client::config::client_nodes }
   $config_utils_nodes  = $utils_nodes  ? { default => $utils_nodes,  ''      => $ldap::utils::config::utils_nodes   }
 
+  if( ! $base_dn and ! $directories ) {
+    $config_base_dn     = $ldap::config::base_dn
+    $config_directories = $ldap::server::config::directories
+  }
+  if( ! $base_dn ) {
+    $config_base_dn     = inline_template( '<%= directories[0] %>' )
+    $config_directories = $directories
+  }
+  if( ! $directories ) {
+    $config_base_dn     = $base_dn
+    $config_directories = [ $base_dn ]
+  }
+  if( ! $config_base_dn     ) { $config_base_dn     = $base_dn     }
+  if( ! $config_directories ) { $config_directories = $directories }
+ 
+ 
+
   # First, check to see if the current node is supposed to be a server node.
   $is_server_node = inline_template( '<%= config_server_nodes.include?( fqdn.downcase ) %>' )
   if( $is_server_node == 'true' ) {
@@ -75,7 +92,7 @@ define ldap (
       ensure                => $ensure                ? { default => $ensure,                '' => $ldap::server::config::ensure                },
       user                  => $user                  ? { default => $user,                  '' => $ldap::server::config::user                  },
       group                 => $group                 ? { default => $group,                 '' => $ldap::server::config::group                 },
-      base_dn               => $base_dn               ? { default => $base_cn,               '' => $ldap::server::config::base_cn               },
+      base_dn               => $config_base_dn,
       password              => $password              ? { default => $password,              '' => $ldap::server::config::password              },
       protocols             => $protocols             ? { default => $protocols,             '' => $ldap::server::config::protocols             },
       protocol              => $protocol              ? { default => $protocol,              '' => $ldap::server::config::protocol              },
@@ -89,7 +106,7 @@ define ldap (
       ldif_dir              => $ldif_dir              ? { default => $ldif_dir,              '' => $ldap::server::config::ldif_dir              },
       ldap_conf_dir         => $ldap_conf_dir         ? { default => $ldap_conf_dir,         '' => $ldap::server::config::ldap_conf_dir         },
       directory_base        => $directory_base        ? { default => $directory_base,        '' => $ldap::server::config::directory_base        },
-      directories           => $directories           ? { default => $directories,           '' => $ldap::server::config::directories           },
+      directories           => $config_directories,
       args_file             => $args_file             ? { default => $args_file,             '' => $ldap::server::config::args_file             },
       log_level             => $log_level             ? { default => $log_level,             '' => $ldap::server::config::log_level             },
       pid_file              => $pid_file              ? { default => $pid_file,              '' => $ldap::server::config::pid_file              },
@@ -129,7 +146,7 @@ define ldap (
       ensure                => $ensure                ? { default => $ensure,                '' => $ldap::client::config::ensure                },
       user                  => $user                  ? { default => $user,                  '' => $ldap::client::config::user                  },
       group                 => $group                 ? { default => $group,                 '' => $ldap::client::config::group                 },
-      base_dn               => $base_dn               ? { default => $base_cn,               '' => $ldap::client::config::base_cn               },
+      base_dn               => $config_base_dn,               
       password              => $password              ? { default => $password,              '' => $ldap::client::config::password              },
       protocols             => $protocols             ? { default => $protocols,             '' => $ldap::client::config::protocols             },
       protocol              => $protocol              ? { default => $protocol,              '' => $ldap::client::config::protocol              },
@@ -143,7 +160,7 @@ define ldap (
       ldif_dir              => $ldif_dir              ? { default => $ldif_dir,              '' => $ldap::client::config::ldif_dir              },
       ldap_conf_dir         => $ldap_conf_dir         ? { default => $ldap_conf_dir,         '' => $ldap::client::config::ldap_conf_dir         },
       directory_base        => $directory_base        ? { default => $directory_base,        '' => $ldap::client::config::directory_base        },
-      directories           => $directories           ? { default => $directories,           '' => $ldap::client::config::directories           },
+      directories           => $config_directories,
       args_file             => $args_file             ? { default => $args_file,             '' => $ldap::client::config::args_file             },
       log_level             => $log_level             ? { default => $log_level,             '' => $ldap::client::config::log_level             },
       pid_file              => $pid_file              ? { default => $pid_file,              '' => $ldap::client::config::pid_file              },
@@ -183,7 +200,7 @@ define ldap (
       ensure                => $ensure                ? { default => $ensure,                '' => $ldap::utils::config::ensure                },
       user                  => $user                  ? { default => $user,                  '' => $ldap::utils::config::user                  },
       group                 => $group                 ? { default => $group,                 '' => $ldap::utils::config::group                 },
-      base_dn               => $base_dn               ? { default => $base_cn,               '' => $ldap::utils::config::base_cn               },
+      base_dn               => $config_base_dn,               
       password              => $password              ? { default => $password,              '' => $ldap::utils::config::password              },
       protocols             => $protocols             ? { default => $protocols,             '' => $ldap::utils::config::protocols             },
       protocol              => $protocol              ? { default => $protocol,              '' => $ldap::utils::config::protocol              },
@@ -197,7 +214,7 @@ define ldap (
       ldif_dir              => $ldif_dir              ? { default => $ldif_dir,              '' => $ldap::utils::config::ldif_dir              },
       ldap_conf_dir         => $ldap_conf_dir         ? { default => $ldap_conf_dir,         '' => $ldap::utils::config::ldap_conf_dir         },
       directory_base        => $directory_base        ? { default => $directory_base,        '' => $ldap::utils::config::directory_base        },
-      directories           => $directories           ? { default => $directories,           '' => $ldap::utils::config::directories           },
+      directories           => $config_directories,
       args_file             => $args_file             ? { default => $args_file,             '' => $ldap::utils::config::args_file             },
       log_level             => $log_level             ? { default => $log_level,             '' => $ldap::utils::config::log_level             },
       pid_file              => $pid_file              ? { default => $pid_file,              '' => $ldap::utils::config::pid_file              },

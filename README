@@ -1,6 +1,8 @@
 ldap
 
-This is the ldap module.
+This module functions as a define and create one or more ldap directories on
+a single OpenLDAP instance.  It can also be used to configure multiple servers
+running OpenLDAP in an N-way master configuration.
 
 This module has been tested and functions on the following platforms:
   Amazon Linux AMI 2011.02.1 Beta (EC2 instances)
@@ -8,3 +10,10 @@ This module has been tested and functions on the following platforms:
   Ubuntu 10.04
   Ubuntu 11.04
   Fedora 15
+
+If you are setting up multiple servers replicating to each other, you will
+need to be careful that OpenLDAP was compiled againts the same SSL engine
+(openssl or gnutls).  The reason for this is that the cipher list format
+between openssl and gnutls is different and incompatible and this module
+replicates the config database as well.  Right now, I don't know of a way
+around this other that not replicating the config which is not ideal.

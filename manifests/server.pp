@@ -78,20 +78,21 @@ define ldap::server (
   $exec_remove_conf     = "rm -rf '${ldap_conf_dir}'"
 
   $server_init_file     = "${ldif_dir}/server-init.ldif"
-  $exec_server_init     = "slapadd -F '${ldap_conf_dir}' -n 0 -l '${server_init_file}'"
+  $exec_server_init     = "slapadd -F '${ldap_conf_dir}' -d1 -n 0 -l '${server_init_file}' 2>&1"
 
   $server_populate_file = "${ldif_dir}/server-populate.ldif"
-  $exec_server_populate = "slapadd -F '${ldap_conf_dir}' -n 0 -l '${server_populate_file}'"
+  $exec_server_populate = "slapadd -F '${ldap_conf_dir}' -d1 -n 0 -l '${server_populate_file}' 2>&1"
 
   $exec_ssl_cert_create = "echo '${ssl_cert_country}\n${ssl_cert_state}\n${ssl_cert_city}\n${ssl_cert_organization}\n${ssl_cert_department}\n${ssl_cert_domain}\n${ssl_cert_email}' | openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout '${ssl_key_file}' -out '${ssl_cert_file}'"
   $exec_ssl_cert_exists = "test -s '${ssl_cert_file}' || test -s '${ssl_key_file}'"
 
   $directory_init_file     = "${ldif_dir}/directory-init.ldif"
-  $exec_directory_init     = "ldapadd -Y EXTERNAL -H ldapi:/// -f '${directory_init_file}'"
-  $exec_is_directory_init  = "test -zn \"`sudo ldapsearch -Y EXTERNAL -H ldapi:/// -LLL -Q -b cn=config '(&(objectClass=olcDatabaseConfig)(olcSuffix=*))' dn`\""
+  $exec_directory_init     = "ldapadd -Y EXTERNAL -H ldapi:/// -d1 -f '${directory_init_file}' 2>&1"
+  $exec_directory_is_initialized  = "test -n \"`ldapsearch -Y EXTERNAL -H ldapi:/// -LLL -Q -b cn=config '(&(objectClass=olcDatabaseConfig)(olcSuffix=*))' dn`\""
 
   $directory_populate_file = "${ldif_dir}/directory-populate.ldif"
-  $exec_directory_populate = "ldapadd -Y EXTERNAL -H ldapi:/// -f '${directory_populate_file}'"
+  $exec_directory_populate = "ldapadd -Y EXTERNAL -H ldapi:/// -d1 -f '${directory_populate_file}' 2>&1"
+  $exec_directory_is_populated  = "test -n \"`ldapsearch -Y EXTERNAL -H ldapi:/// -LLL -Q -b '${base_dn}' '(ou=${base_dn})' dn`\""
 
   Exec{
     user      => 'root',
@@ -215,7 +216,6 @@ define ldap::server (
         group     => $group,
         command   => $exec_server_init,
         require   => Ldap::Utils[ 'ldap::utils' ],
-        unless    => $exec_is_directory_init,
         refreshonly => 'true',
       }
       exec{ 'ldap-server-populate':
@@ -253,6 +253,7 @@ define ldap::server (
       exec{ 'ldap-directory-init':
         command     => $exec_directory_init,
         subscribe   => Exec[ 'ldap-server-populate' ],
+        unless      => $exec_directory_is_initialized,
         refreshonly => 'true'
       }
 
@@ -264,8 +265,9 @@ define ldap::server (
         before  => Exec[ 'ldap-directory-populate' ],
       }
       exec{ 'ldap-directory-populate':
-        command     => $exec_directory_init,
-        require     => Exec[ 'ldap-directory-init' ],
+        command     => $exec_directory_populate,
+        subscribe   => Exec[ 'ldap-directory-init' ],
+        unless      => $exec_directory_is_populated,
         refreshonly => 'true',
       }
     }

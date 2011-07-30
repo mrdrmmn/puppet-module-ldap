@@ -20,7 +20,7 @@ ou: <%= base_dn %>
       next if ! ou or ou == '' or seen.has_key?( ou )
       seen[ ou ] = 1
 -%>
-dn: ou=<%= ou %>,<%= config['base_dn'] %>
+dn: ou=<%= ou %>,<%= base_dn %>
 objectClass: organizationalUnit
 ou: <%= ou %>
 

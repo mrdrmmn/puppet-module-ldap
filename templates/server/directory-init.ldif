@@ -13,7 +13,6 @@ objectClass: olcHdbConfig
 olcDatabase: hdb
 olcDbDirectory: <%= directory_path %>
 olcSuffix: <%= base_dn %>
-olcLastMod: TRUE
 olcRootDN: <%= base_dn %>
 olcRootPW: <%= scope.function_template( 'ldap/encrypt-password.erb' ) %>
 olcAccess: to *
@@ -39,6 +38,8 @@ olcSyncRepl: rid=<%= sid += 1 %> provider=<%= uri %> binddn=<%= base_dn %> bindm
   credentials=<%= password %> searchbase=<%= base_dn %> type=refreshAndPersist
   tls_reqcert=<%= config['ssl_verify_certs'] %> retry="5 5 300 5" timeout=1
 <% end -%>
+olcMonitoring: FALSE
+olcLastMod: TRUE
 olcMirrorMode: TRUE
 
 dn: olcOverlay=syncprov,olcDatabase={<%= db_id %>}hdb,cn=config
