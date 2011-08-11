@@ -29,7 +29,7 @@ define ldap::utils (
   $search_timelimit      = $ldap::utils::config::search_timelimit,
   $bind_timelimit        = $ldap::utils::config::bind_timelimit,
   $idle_timelimit        = $ldap::utils::config::idle_timelimit,
-  $ldif_dir              = $ldap::utils::config::ldif_dir,
+  $misc_dir              = $ldap::utils::config::misc_dir,
   $ldap_conf_dir         = $ldap::utils::config::ldap_conf_dir,
   $directory_base        = $ldap::utils::config::directory_base,
   $directories           = $ldap::utils::config::directories,

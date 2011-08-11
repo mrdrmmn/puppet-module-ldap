@@ -29,7 +29,7 @@ define ldap::server (
   $search_timelimit      = $ldap::server::config::search_timelimit,
   $bind_timelimit        = $ldap::server::config::bind_timelimit,
   $idle_timelimit        = $ldap::server::config::idle_timelimit,
-  $ldif_dir              = $ldap::server::config::ldif_dir,
+  $misc_dir              = $ldap::server::config::misc_dir,
   $ldap_conf_dir         = $ldap::server::config::ldap_conf_dir,
   $directory_base        = $ldap::server::config::directory_base,
   $directories           = $ldap::server::config::directories,
@@ -77,20 +77,20 @@ define ldap::server (
 
   $exec_remove_conf     = "rm -rf '${ldap_conf_dir}'"
 
-  $server_init_file     = "${ldif_dir}/server-init.ldif"
+  $server_init_file     = "${misc_dir}/server-init.ldif"
   $exec_server_init     = "slapadd -F '${ldap_conf_dir}' -d1 -n 0 -l '${server_init_file}' 2>&1"
 
-  $server_populate_file = "${ldif_dir}/server-populate.ldif"
+  $server_populate_file = "${misc_dir}/server-populate.ldif"
   $exec_server_populate = "slapadd -F '${ldap_conf_dir}' -d1 -n 0 -l '${server_populate_file}' 2>&1"
 
   $exec_ssl_cert_create = "echo '${ssl_cert_country}\n${ssl_cert_state}\n${ssl_cert_city}\n${ssl_cert_organization}\n${ssl_cert_department}\n${ssl_cert_domain}\n${ssl_cert_email}' | openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout '${ssl_key_file}' -out '${ssl_cert_file}'"
   $exec_ssl_cert_exists = "test -s '${ssl_cert_file}' || test -s '${ssl_key_file}'"
 
-  $directory_init_file     = "${ldif_dir}/directory-init.ldif"
+  $directory_init_file     = "${misc_dir}/directory-init.ldif"
   $exec_directory_init     = "ldapadd -Y EXTERNAL -H ldapi:/// -d1 -f '${directory_init_file}' 2>&1"
   $exec_directory_is_initialized  = "test -n \"`ldapsearch -Y EXTERNAL -H ldapi:/// -LLL -Q -b cn=config '(&(objectClass=olcDatabaseConfig)(olcSuffix=*))' dn`\""
 
-  $directory_populate_file = "${ldif_dir}/directory-populate.ldif"
+  $directory_populate_file = "${misc_dir}/directory-populate.ldif"
   $exec_directory_populate = "ldapadd -Y EXTERNAL -H ldapi:/// -d1 -f '${directory_populate_file}' 2>&1"
   $exec_directory_is_populated  = "test -n \"`ldapsearch -Y EXTERNAL -H ldapi:/// -LLL -Q -b '${base_dn}' '(ou=${base_dn})' dn`\""
 
@@ -157,7 +157,7 @@ define ldap::server (
 
       # Create the filesystem directories what will be used to store our
       # config and ldap directory data.
-      directory{ [ $ldif_dir, $directory_base, $ldap_conf_dir ]:
+      directory{ [ $misc_dir, $directory_base, $ldap_conf_dir ]:
         ensure  => 'present',
         owner   => $user,
         group   => $group,
@@ -283,7 +283,7 @@ define ldap::server (
         enable => 'false',
       }
 
-      directory{ $ldif_dir:
+      directory{ $misc_dir:
         ensure  => 'absent',
         require => Service[ $services ],
       }

@@ -1,5 +1,5 @@
 class ldap::server::defaults inherits ldap::config {
-  $ldif_dir           = '/var/ldap/ldif'
+  $misc_dir           = '/var/ldap/misc'
   $directory_base     = '/var/ldap/directories'
   $directories        = [ $base_dn ]
   $log_level          = 'none'
@@ -16,5 +16,7 @@ class ldap::server::defaults inherits ldap::config {
     'misc.ldif',
     'nis.ldif',
     'openldap.ldif',
+    'samba.ldif',
+    'apple.ldif',
   ]
 }

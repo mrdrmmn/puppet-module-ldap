@@ -93,26 +93,33 @@ class ldap::defaults {
   $client_nodes = [ $fqdn ]
   $utils_nodes  = [ $fqdn ]
 
-  # [0] - The db name based on nsswitch.
-  # [1] - The method(s) used by nsswitch to look up data when ldap is disabled.
-  # [2] - The method(s) used by nsswitch to look up data when ldap is enabled.
-  # [3] - The OU where the data can be found in your ldap directory.
-  # [4] - The key used to reference the db in ldap.conf.
-  # [5] - The key used to reference the db in ldapscripts.conf.
+  # [0] - A "friendly" name for this entry.
+  # [1] - The db name based on nsswitch.
+  # [2] - The method(s) used by nsswitch to look up data when ldap is disabled.
+  # [3] - The method(s) used by nsswitch to look up data when ldap is enabled.
+  # [4] - The OU where the data can be found in your ldap directory.
+  # [5] - The key used to reference the db in ldap.conf.
+  # [6] - The key used to reference the db in ldapscripts.conf.
   $db_mapping  = [
-    'passwd    :compat   :compat ldap [NOTFOUND=return] db   :People   :nss_base_passwd    :USUFFIX',
-    'shadow    :compat   :compat ldap [NOTFOUND=return] db   :People   :nss_base_shadow    :',
-    'group     :compat   :compat ldap [NOTFOUND=return] db   :Group    :nss_base_group     :GSUFFIX',
-    'hosts     :files dns:files dns ldap [NOTFOUND=return] db:Hosts    :nss_base_hosts     :',
-    'services  :db files :ldap [NOTFOUND=return] db files    :Services :nss_base_services  :',
-    'networks  :files    :ldap [NOTFOUND=return] files       :Networks :nss_base_networks  :',
-    'netmasks  :files    :ldap [NOTFOUND=return] files       :Networks :nss_base_netmasks  :',
-    'protocols :db files :ldap [NOTFOUND=return] db files    :Protocols:nss_base_protocols :',
-    'rpc       :db files :ldap [NOTFOUND=return] db files    :Rpc      :nss_base_rpc       :',
-    'ethers    :db files :ldap [NOTFOUND=return] db files    :Ethers   :nss_base_ethers    :',
-    'bootparams:files    :ldap [NOTFOUND=return] files       :Ethers   :nss_base_bootparams:',
-    'aliases   :files    :ldap [NOTFOUND=return] files       :Aliases  :nss_base_aliases   :',
-    'netgroup  :nis      :ldap [NOTFOUND=return] nis         :Netgroup :nss_base_netgroup  :',
-    '          :         :                                   :Machines :                   :MSUFFUX',
+    'passwd    :passwd    :compat   :compat ldap [NOTFOUND=return] db   :People   :nss_base_passwd    :USUFFIX',
+    'shadow    :shadow    :compat   :compat ldap [NOTFOUND=return] db   :People   :nss_base_shadow    :',
+    'group     :group     :compat   :compat ldap [NOTFOUND=return] db   :Group    :nss_base_group     :GSUFFIX',
+    'hosts     :hosts     :files dns:files dns ldap [NOTFOUND=return] db:Hosts    :nss_base_hosts     :',
+    'services  :services  :db files :ldap [NOTFOUND=return] db files    :Services :nss_base_services  :',
+    'networks  :networks  :files    :ldap [NOTFOUND=return] files       :Networks :nss_base_networks  :',
+    'netmasks  :netmasks  :files    :ldap [NOTFOUND=return] files       :Networks :nss_base_netmasks  :',
+    'protocols :protocols :db files :ldap [NOTFOUND=return] db files    :Protocols:nss_base_protocols :',
+    'rpc       :rpc       :db files :ldap [NOTFOUND=return] db files    :Rpc      :nss_base_rpc       :',
+    'ethers    :ethers    :db files :ldap [NOTFOUND=return] db files    :Ethers   :nss_base_ethers    :',
+    'bootparams:bootparams:files    :ldap [NOTFOUND=return] files       :Ethers   :nss_base_bootparams:',
+    'aliases   :aliases   :files    :ldap [NOTFOUND=return] files       :Aliases  :nss_base_aliases   :',
+    'netgroup  :netgroup  :nis      :ldap [NOTFOUND=return] nis         :Netgroup :nss_base_netgroup  :',
+    'machines  :          :         :                                   :Machines :                   :MSUFFUX',
+    'mounts    :          :         :                                   :Mounts   :                   :',
+    'macosx    :          :         :                                   :MacOSX   :                   :',
   ]
+
+  $packages   = []
+  $conf_files = []
+  $services   = []
 }

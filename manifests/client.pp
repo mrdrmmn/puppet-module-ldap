@@ -29,7 +29,7 @@ define ldap::client (
   $search_timelimit      = $ldap::client::config::search_timelimit,
   $bind_timelimit        = $ldap::client::config::bind_timelimit,
   $idle_timelimit        = $ldap::client::config::idle_timelimit,
-  $ldif_dir              = $ldap::client::config::ldif_dir,
+  $misc_dir              = $ldap::client::config::misc_dir,
   $ldap_conf_dir         = $ldap::client::config::ldap_conf_dir,
   $directory_base        = $ldap::client::config::directory_base,
   $directories           = $ldap::client::config::directories,

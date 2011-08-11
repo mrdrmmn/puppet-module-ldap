@@ -19,18 +19,24 @@ olcAccess: to *
   by dn.exact=gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth manage
   by * break
 olcAccess: to attrs=userPassword,shadowLastChange
-  by tls_ssf=<%= config['ssl_minimum'] %> self write
-  by tls_ssf=<%= config['ssl_minimum'] %> anonymous auth
+  by ssf=<%= config['ssl_minimum'] %> self write
+  by ssf=<%= config['ssl_minimum'] %> anonymous auth
   by * none
 olcAccess: to dn.base="" by ssf=<%= config['ssl_minimum'] %> * read
 olcAccess: to *
-  by tls_ssf=<%= config['ssl_minimum'] %> self write
-  by tls_ssf=<%= config['ssl_minimum'] %> * read
+  by ssf=<%= config['ssl_minimum'] %> self write
+  by ssf=<%= config['ssl_minimum'] %> * read
 olcDbConfig: set_cachesize 0 2097152 0
 olcDbConfig: set_lk_max_objects 1500
 olcDbConfig: set_lk_max_locks 1500
 olcDbConfig: set_lk_max_lockers 1500
+olcDbIndex: uid,gidNumber,sambasid,uidNumber pres,eq
+olcDbIndex: cn,sn,mail,givenName,memberUid pres,eq,approx,sub
 olcDbIndex: objectClass,entryCSN,entryUUID eq
+olcDbIndex: apple-group-realname,apple-realname pres,eq,approx,sub
+olcDbIndex: apple-generateduid,apple-group-memberguid,apple-ownerguid pres,eq
+
+
 <% if config['server_nodes'].length > 1 -%>
 <% sid = 0 -%>
 <% scope.function_template( 'ldap/generate-remote-uris.erb' ).split( /\s+/ ).each do |uri| -%>

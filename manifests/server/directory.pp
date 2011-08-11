@@ -28,7 +28,7 @@ define ldap::server::directory (
   $search_timelimit      = $ldap::server::config::search_timelimit,
   $bind_timelimit        = $ldap::server::config::bind_timelimit,
   $idle_timelimit        = $ldap::server::config::idle_timelimit,
-  $ldif_dir              = $ldap::server::config::ldif_dir,
+  $misc_dir              = $ldap::server::config::misc_dir,
   $ldap_conf_dir         = $ldap::server::config::ldap_conf_dir,
   $directory_base        = $ldap::server::config::directory_base,
   $directories           = $ldap::server::config::directories,
@@ -64,13 +64,13 @@ define ldap::server::directory (
   $base_dn    = $name
 
   $directory_path                = "${directory_base}/${base_dn}"
-  $directory_init_file           = "${ldif_dir}/${base_dn}-init.ldif"
+  $directory_init_file           = "${misc_dir}/${base_dn}-init.ldif"
   $exec_directory_initialize     = "ldapadd -Y EXTERNAL -H ldapi:/// -f '${directory_init_file}'"
   $exec_directory_is_initialized = "test -n \"`slapcat -b cn=config -a '(&(objectClass=olcDatabaseConfig)(olcSuffix=${base_dn}))'`\""
-  $directory_populate_file       = "${ldif_dir}/${base_dn}-populate.ldif"
+  $directory_populate_file       = "${misc_dir}/${base_dn}-populate.ldif"
   $exec_directory_populate       = "ldapadd -Y EXTERNAL -H ldapi:/// -f '${directory_populate_file}'"
   $exec_directory_is_populated   = "ldapsearch -Z -y /etc/ldap.secret -D '${base_dn}' -LLL -s base"
-  $directory_conf_file           = "${ldif_dir}/${base_dn}-conf.ldif"
+  $directory_conf_file           = "${misc_dir}/${base_dn}-conf.ldif"
   $exec_directory_configure      = "ldapmodify -Y EXTERNAL -H ldapi:/// -f '${directory_conf_file}'"
   $exec_directory_is_configured  = "test -n \"`ldapsearch -Z -y /etc/ldap.secret -D '${base_dn}' -LLL -s base 2>/dev/null`\""
 
