@@ -16,6 +16,7 @@ define ldap::server (
   $server_nodes          = $ldap::server::config::server_nodes,
   $client_nodes          = $ldap::server::config::client_nodes,
   $utils_nodes           = $ldap::server::config::utils_nodes,
+  $admin_user            = $ldap::server::config::admin_user,
   $user                  = $ldap::server::config::user,
   $group                 = $ldap::server::config::group,
   $base_dn               = $ldap::server::config::base_dn,

@@ -16,6 +16,7 @@ define ldap::utils (
   $server_nodes          = $ldap::utils::config::server_nodes,
   $client_nodes          = $ldap::utils::config::client_nodes,
   $utils_nodes           = $ldap::utils::config::utils_nodes,
+  $admin_user            = $ldap::utils::config::admin_user,
   $user                  = $ldap::utils::config::user,
   $group                 = $ldap::utils::config::group,
   $base_dn               = $ldap::utils::config::base_dn,

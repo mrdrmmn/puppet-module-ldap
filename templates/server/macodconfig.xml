@@ -1037,7 +1037,7 @@
                 <string>apple-acl</string>
               </array>
               <key>Search Base</key>
-              <string>cn=accesscontrols, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=accesscontrols,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -1098,7 +1098,7 @@
                 <string>organizationalUnit</string>
               </array>
               <key>Search Base</key>
-              <string>cn=certificateauthorities, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=certificateauthorities,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -1342,7 +1342,7 @@
                 <string>apple-computer</string>
               </array>
               <key>Search Base</key>
-              <string>cn=computers, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=computers,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -1588,7 +1588,7 @@
                 <string>extensibleObject</string>
               </array>
               <key>Search Base</key>
-              <string>cn=computer_groups, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=computer_groups,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -1656,7 +1656,7 @@
                 <string>apple-computer-list</string>
               </array>
               <key>Search Base</key>
-              <string>cn=computer_lists, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=computer_lists,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -1782,7 +1782,7 @@
                 <string>organizationalUnit</string>
               </array>
               <key>Search Base</key>
-              <string>cn=config, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=config,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -1818,7 +1818,7 @@
                 <string>apple-location</string>
               </array>
               <key>Search Base</key>
-              <string>cn=locations, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=locations,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -1898,7 +1898,7 @@
                 <string>apple-machine</string>
               </array>
               <key>Search Base</key>
-              <string>cn=machines, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=machines,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -1998,7 +1998,7 @@
                 <string>apple-neighborhood</string>
               </array>
               <key>Search Base</key>
-              <string>cn=neighborhoods, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=neighborhoods,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -2331,7 +2331,7 @@
                 <string>extensibleObject</string>
               </array>
               <key>Search Base</key>
-              <string>cn=people, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=people,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -2383,7 +2383,7 @@
                 <string>apple-preset-computer-list</string>
               </array>
               <key>Search Base</key>
-              <string>cn=presets_computer_lists, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=presets_computer_lists,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -2499,7 +2499,7 @@
                 <string>apple-preset-group</string>
               </array>
               <key>Search Base</key>
-              <string>cn=presets_groups, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=presets_groups,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -2751,7 +2751,7 @@
                 <string>apple-preset-user</string>
               </array>
               <key>Search Base</key>
-              <string>cn=presets_users, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=presets_users,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -2803,7 +2803,7 @@
                 <string>apple-printer</string>
               </array>
               <key>Search Base</key>
-              <string>cn=printers, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=printers,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -3440,7 +3440,7 @@
                 <string>extensibleObject</string>
               </array>
               <key>Search Base</key>
-              <string>cn=augments, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=augments,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -3468,7 +3468,7 @@
                 <string>apple-serverassistant-config</string>
               </array>
               <key>Search Base</key>
-              <string>cn=autoserversetup, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=autoserversetup,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -3545,7 +3545,7 @@
                 <string>leaf</string>
               </array>
               <key>Search Base</key>
-              <string>cn=filemakerservers, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=filemakerservers,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -3701,7 +3701,7 @@
                 <string>apple-resource</string>
               </array>
               <key>Search Base</key>
-              <string>cn=resources, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=resources,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -3857,7 +3857,7 @@
                 <string>apple-resource</string>
               </array>
               <key>Search Base</key>
-              <string>cn=places, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=places,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -4013,7 +4013,7 @@
                 <string>apple-resource</string>
               </array>
               <key>Search Base</key>
-              <string>cn=maps, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=maps,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -4317,7 +4317,7 @@
                 <string>apple-preset-computer</string>
               </array>
               <key>Search Base</key>
-              <string>cn=presets_computers, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=presets_computers,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -4401,7 +4401,7 @@
                 <string>apple-preset-computer-group</string>
               </array>
               <key>Search Base</key>
-              <string>cn=presets_computer_groups, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=presets_computer_groups,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -4437,7 +4437,7 @@
                 <string>automountMap</string>
               </array>
               <key>Search Base</key>
-              <string>cn=automountMap, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=automountMap,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>
@@ -4481,7 +4481,7 @@
                 <string>automount</string>
               </array>
               <key>Search Base</key>
-              <string>cn=automountMap, ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
+              <string>cn=automountMap,ou=<%= dn_map['macosx'] %>,<%= config['base_dn'] %></string>
             </dict>
           </array>
           <key>Standard Name</key>

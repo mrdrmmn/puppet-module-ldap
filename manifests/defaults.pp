@@ -9,6 +9,9 @@ class ldap::defaults {
   # and not to the servers.
   $base_dn               = 'dc=example,dc=com'
 
+  # The username that will be created and give access to manage the directory
+  $admin_user             = 'admin'
+  
   # The password for the root dn.  Please don't rely on $uniqueid for this
   # in production, but it is an nice way to do things in a test environment.
   $password              = $uniqueid

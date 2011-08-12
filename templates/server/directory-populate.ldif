@@ -3,6 +3,7 @@
   config = scope.parent.to_hash if ! config.has_key?( 'server_nodes' )
 
   require 'base64'
+  require 'securerandom'
 
   # Check to see if we are going to set up macosx specific bits.
   macosx = 0;
@@ -30,10 +31,51 @@ ou: <%= base_dn %>
       seen[ ou ] = 1
 -%>
 dn: ou=<%= ou %>,<%= base_dn %>
-objectClass: organizationalUnit
 ou: <%= ou %>
+objectClass: organizationalUnit
+objectClass: top
 
-<%- if key == 'macosx' %>
+<% if key == 'group' -%>
+dn: cn=<%= admin_user %>,ou=<%= ou %>,<%= base_dn %>
+cn: <%= admin_user %>
+gidNumber: 10000
+memberUid: 10000
+<%   if macosx == 1 -%>
+apple-group-realname: Directory Administrators
+apple-generateduid: <%= SecureRandom.hex(16).upcase.sub( /^(.{8})(.{4})(.{4})(.{4})(.*)$/, '\1-\2-\3-\4-\5' ) %>
+objectClass: apple-group
+objectClass: extensibleObject
+<%   end -%>
+objectClass: top
+objectClass: posixGroup
+
+<% elsif key == 'passwd' or key == 'shadow' -%>
+dn: uid=<%= admin_user %>,ou=<%= ou %>,<%= base_dn %>
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: organizationalPerson
+objectClass: apple-user
+objectClass: extensibleObject
+#objectClass: person         
+objectClass: top
+uid: <%= admin_user %>
+cn: Directory Administrator
+sn: Administrator
+givenName: Directory
+uidNumber: 10000
+gidNumber: 10000
+userPassword: <%= scope.function_template( 'ldap/encrypt-password.erb' ) %>
+loginShell: /bin/sh
+homeDirectory: /home/<%= admin_user %>
+title: Directory Administrator
+<% if macosx == 1 -%>
+apple-user-homeDirectory: /Users/<%= admin_user %>
+apple-generateduid: <%= SecureRandom.hex(16).upcase.sub( /^(.{8})(.{4})(.{4})(.{4})(.*)$/, '\1-\2-\3-\4-\5' ) %>
+authAuthority: ;basic;
+<% end -%>
+
+<% elsif key == 'macosx' -%>
 dn: cn=accesscontrols,ou=<%= ou %>,<%= base_dn %>
 objectClass: container
 cn: accesscontrols
@@ -162,7 +204,7 @@ objectClass: apple-configuration
 objectClass: top
 cn: CollabServices
 
-<%- end %>
+<% end -%>
 <%
     end
   end

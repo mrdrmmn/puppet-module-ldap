@@ -1,11 +1,12 @@
 define ldap (
   $ensure                = '',
-  $server_nodes          = '',
-  $client_nodes          = '',
-  $utils_nodes           = '',
+  $server_nodes          = undef,
+  $client_nodes          = undef,
+  $utils_nodes           = undef,
   $user                  = '',
   $group                 = '',
   $base_dn               = undef,
+  $admin_user            = undef,
   $password              = '',
   $protocols             = '',
   $protocol              = '',
@@ -60,9 +61,10 @@ define ldap (
   include ldap::client::config
   include ldap::utils::config
 
-  $config_server_nodes = $server_nodes ? { default => $server_nodes, ''      => $ldap::server::config::server_nodes }
-  $config_client_nodes = $client_nodes ? { default => $client_nodes, ''      => $ldap::client::config::client_nodes }
-  $config_utils_nodes  = $utils_nodes  ? { default => $utils_nodes,  ''      => $ldap::utils::config::utils_nodes   }
+  $config_server_nodes = $server_nodes ? { default => $server_nodes, '' => $ldap::server::config::server_nodes }
+  $config_client_nodes = $client_nodes ? { default => $client_nodes, '' => $ldap::client::config::client_nodes }
+  $config_utils_nodes  = $utils_nodes  ? { default => $utils_nodes,  '' => $ldap::utils::config::utils_nodes   }
+  $config_admin_user   = $admin_user   ? { default => $admin_user,   '' => $ldap::config::admin_user           }
 
   if( ! $base_dn and ! $directories ) {
     $config_base_dn     = $ldap::config::base_dn
@@ -78,17 +80,16 @@ define ldap (
   }
   if( ! $config_base_dn     ) { $config_base_dn     = $base_dn     }
   if( ! $config_directories ) { $config_directories = $directories }
- 
- 
 
   # First, check to see if the current node is supposed to be a server node.
-  $is_server_node = inline_template( '<%= config_server_nodes.include?( fqdn.downcase ) %>' )
+  $is_server_node = inline_template( '<%= config_server_nodes.flatten.include?( fqdn.downcase ) %>' )
   if( $is_server_node == 'true' ) {
 
     ldap::server{ 'ldap::server':
       server_nodes          => $config_server_nodes,
       client_nodes          => $config_client_nodes,
       utils_nodes           => $config_utils_nodes,
+      admin_user            => $config_admin_user,
       ensure                => $ensure                ? { default => $ensure,                '' => $ldap::server::config::ensure                },
       user                  => $user                  ? { default => $user,                  '' => $ldap::server::config::user                  },
       group                 => $group                 ? { default => $group,                 '' => $ldap::server::config::group                 },
@@ -137,12 +138,13 @@ define ldap (
     }
   }
   
-  $is_client_node = inline_template( '<%= config_client_nodes.include?( fqdn.downcase ) %>' )
+  $is_client_node = inline_template( '<%= config_client_nodes.flatten.include?( fqdn.downcase ) %>' )
   if( $is_client_node == 'true' ) {
     ldap::client{ 'ldap::client':
       server_nodes          => $config_server_nodes,
       client_nodes          => $config_client_nodes,
       utils_nodes           => $config_utils_nodes,
+      admin_user            => $config_admin_user,
       ensure                => $ensure                ? { default => $ensure,                '' => $ldap::client::config::ensure                },
       user                  => $user                  ? { default => $user,                  '' => $ldap::client::config::user                  },
       group                 => $group                 ? { default => $group,                 '' => $ldap::client::config::group                 },
@@ -191,12 +193,13 @@ define ldap (
     }
   }
 
-  $is_utils_node = inline_template( '<%= config_utils_nodes.include?( fqdn.downcase ) %>' )
+  $is_utils_node = inline_template( '<%= config_utils_nodes.flatten.include?( fqdn.downcase ) %>' )
   if( $is_utils_node == 'true' and ! defined( Ldap::Utils[ 'ldap::utils' ] ) ) {
     ldap::utils{ 'ldap::utils':
       server_nodes          => $config_server_nodes,
       client_nodes          => $config_client_nodes,
       utils_nodes           => $config_utils_nodes,
+      admin_user            => $config_admin_user,
       ensure                => $ensure                ? { default => $ensure,                '' => $ldap::utils::config::ensure                },
       user                  => $user                  ? { default => $user,                  '' => $ldap::utils::config::user                  },
       group                 => $group                 ? { default => $group,                 '' => $ldap::utils::config::group                 },

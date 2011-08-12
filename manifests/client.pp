@@ -16,6 +16,7 @@ define ldap::client (
   $server_nodes          = $ldap::client::config::server_nodes,
   $client_nodes          = $ldap::client::config::client_nodes,
   $utils_nodes           = $ldap::client::config::utils_nodes,
+  $admin_user            = $ldap::client::config::admin_user,
   $user                  = $ldap::client::config::user,
   $group                 = $ldap::client::config::group,
   $base_dn               = $ldap::client::config::base_dn,
@@ -96,6 +97,7 @@ define ldap::client (
     }
   }
 
+  alert( $base_dn )
   ldap::toggle{ $conf_files:
     ensure  => $ensure,
   }
